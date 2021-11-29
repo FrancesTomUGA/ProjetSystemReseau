@@ -25,14 +25,14 @@ int main(int argc, char const *argv[])
      }
 
      //Attachement de la socket à un port
-     struct sockaddr_in sock_adresse;   
+     struct sockaddr_in socketClient;   
      
      // pointeur structure : (->) pour accès aux champs
-     sock_adresse.sin_family = AF_INET;
-     sock_adresse.sin_port = htons(6067);
-     sock_adresse.sin_addr.s_addr = htonl(INADDR_ANY);
+     socketClient.sin_family = AF_INET;
+     socketClient.sin_port = htons(6067);
+     socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
      
-     if(bind(socketEcoute, (struct sockaddr*) &sock_adresse, sizeof(sock_adresse)) == -1){
+     if(bind(socketEcoute, (struct sockaddr*) &socketClient, sizeof(socketClient)) == -1){
           perror("bind()");
           exit(-1);
      }else{
@@ -48,7 +48,18 @@ int main(int argc, char const *argv[])
           printf("Tout va bien ouverture\n");
      }
      
+     int len = sizeof(socketClient);
      while (1){
+          
+          if(accept(socketEcoute, (struct sockaddr*) &socketClient, &len) == -1){
+               perror("accept()");
+               exit(-1);
+          }else{
+               printf("Accepte connection ok\n"); // Ici on a eu aucun affichage car on avait pas mit de \n
+                                                  // penser à en mettre pour flush le buffer et afficher sur la sortie standard
+          }
+          
+          //printf("taille de res accept %d\n", accept(socketEcoute, (struct sockaddr*) &socketClient, &len));
      }
 
      return 0;

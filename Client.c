@@ -38,5 +38,8 @@ int main(int argc, char const *argv[])
           printf("Connection établie\n");
      }
 
+     int tampon = 17;
+     write(socketCommClient, &tampon, sizeof(int));
+
      return 0;
 }
