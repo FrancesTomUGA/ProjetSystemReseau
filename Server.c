@@ -48,7 +48,8 @@ int main(int argc, char const *argv[])
           printf("Tout va bien ouverture\n");
      }
      
-     
+     while (1){
+     }
 
      return 0;
 }

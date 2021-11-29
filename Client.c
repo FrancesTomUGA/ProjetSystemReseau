@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
      if(connect(socketCommClient, (struct sockaddr*) &socketServeur, sizeof(socketServeur)) == -1){
           perror("connect()");
      }else{
-          printf("ok\n");
+          printf("Connection établie\n");
      }
 
      return 0;
