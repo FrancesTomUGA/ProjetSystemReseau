@@ -45,8 +45,10 @@ int recupererListeFichier(){
           }
      }
      closedir(rep);
-     for(int j = 0;j<nbFichier;j++){
-          printf("je contient en %d , le text : %s\n",j,listeFichier[j]);
+     printf("Liste des fichiers : \n");
+     for (int j = 0; j < nbFichier; j++)
+     {
+          printf("%d : %s\n", j + 1, listeFichier[j]);
      }
      return nbFichier;
      clear();
@@ -58,13 +60,13 @@ void selectionEnvoie(int socketCommClient){
      
      tabFichiersAEnvoyer = malloc(sizeof(char*) * 5); //tableau des numéros de fichiers à envoyer
 
-     int numFichier = 0;  //numéro de fichier à envoyer choisi par l'utilisateur
+     int numFichier = 0; //numéro de fichier à envoyer choisi par l'utilisateur
      int i = 0;
      printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
      scanf("%d", &numFichier);
      while (i < 10 && numFichier != -1)
      {
-          tabFichiersAEnvoyer[i] = malloc(sizeof(char)*strlen(listeFichier[numFichier - 1]));
+          tabFichiersAEnvoyer[i] = malloc(sizeof(char) * strlen(listeFichier[numFichier - 1]));
           strcpy(tabFichiersAEnvoyer[i], listeFichier[numFichier - 1]); //on stocke le numéro du fichier qu'on veut récupérer dans le tableau
           i++;
           printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
@@ -77,7 +79,7 @@ void selectionEnvoie(int socketCommClient){
      {
           printf("envoi fichier %d\n", j);
           int tailleChaine = strlen(tabFichiersAEnvoyer[j]);
-          write(socketCommClient,&tailleChaine,sizeof(int));
+          write(socketCommClient, &tailleChaine, sizeof(int));
           printf("taille ecrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], strlen(tabFichiersAEnvoyer[j]))); //envoi des fichiers au serveur
      }
      printf("J'ai fini d'envoyer les fichiers\n");
