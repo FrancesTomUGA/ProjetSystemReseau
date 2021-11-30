@@ -116,7 +116,7 @@ int main(int argc, char const *argv[])
                //printf("Nb de fichiers à lire : %d\n", nbFichiersALire); ok
 
                int i = 0;
-               char *tamponString = malloc(sizeof(char) * 20);
+               char* tamponString = malloc(sizeof(char) * 20);
                while (i < nbFichiersALire)
                {
                     while (read(socketService, tamponString, sizeof(char) * 20) == -1);
