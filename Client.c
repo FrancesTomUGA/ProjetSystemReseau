@@ -9,7 +9,8 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <dirent.h>
+#include <assert.h>
 
 int main(int argc, char const *argv[])
 {
@@ -55,27 +56,30 @@ int main(int argc, char const *argv[])
      read(socketCommClient, &tampon, sizeof(int));
      printf("Valeur reçue : %d\n", tampon);
 
+     int nbFichier = 0;
+     char** listeFichier=malloc(sizeof(char));
+     struct dirent *lecture;
+     DIR *rep;
+     rep = opendir("./Files");
+     while ((lecture = readdir(rep))) {
+          if (lecture->d_type == DT_REG && (lecture->d_name)[0]!='.'){
+               if(realloc(listeFichier,sizeof(listeFichier)+(sizeof(char)*strlen(lecture->d_name)))== NULL){
+                    printf("Erreur dans la reallocation mémoire : realloc()");
+               }
+               listeFichier[nbFichier] = lecture->d_name;
+               nbFichier++;
+          }
+     }
+     //{}
+     //\n
+     //[]
+     closedir(rep);
+     for(int j = 0;j<nbFichier;j++){
+          printf("je contient en %d , le text : %s\n",j,listeFichier[j]);
+     }
 
      // Création de la boucle d'envoi des fichiers dans le cas où l'utilisateur veut déposer des fichiers sur le serveur
      char** tabFichiersAEnvoyer = malloc(sizeof(char*) * 5); //tableau des numéros de fichiers à envoyer
-     char** tabFichiersRepertoireClient = malloc(sizeof(char*) * 5);
-     tabFichiersRepertoireClient[0] = malloc(sizeof(char) * 20);
-     tabFichiersRepertoireClient[1] = malloc(sizeof(char) * 20);
-     tabFichiersRepertoireClient[2] = malloc(sizeof(char) * 20);
-     tabFichiersRepertoireClient[3] = malloc(sizeof(char) * 20);
-     tabFichiersRepertoireClient[4] = malloc(sizeof(char) * 20);
-
-     tabFichiersAEnvoyer[0] = malloc(sizeof(char) * 20);
-     tabFichiersAEnvoyer[1] = malloc(sizeof(char) * 20);
-     tabFichiersAEnvoyer[2] = malloc(sizeof(char) * 20);
-     tabFichiersAEnvoyer[3] = malloc(sizeof(char) * 20);
-     tabFichiersAEnvoyer[4] = malloc(sizeof(char) * 20);
-
-     tabFichiersRepertoireClient[0] = "fleur.jpg";
-     tabFichiersRepertoireClient[1] = "arbre.jpg";
-     tabFichiersRepertoireClient[2] = "dauphin.jpg";
-     tabFichiersRepertoireClient[3] = "tortuesnapping.jpg";
-     tabFichiersRepertoireClient[4] = "lion.jpg";
 
      int numFichier = 0;  //numéro de fichier à envoyer choisi par l'utilisateur
      int i = 0;
@@ -83,8 +87,8 @@ int main(int argc, char const *argv[])
      scanf("%d", &numFichier);
      while (i < 10 && numFichier != -1)
      {
-          printf("Numéro de fichier : %d\n", numFichier);
-          strcpy(tabFichiersAEnvoyer[i], tabFichiersRepertoireClient[numFichier - 1]); //on stocke le numéro du fichier qu'on veut récupérer dans le tableau
+          tabFichiersAEnvoyer[i] = malloc(sizeof(char)*strlen(listeFichier[numFichier - 1]));
+          strcpy(tabFichiersAEnvoyer[i], listeFichier[numFichier - 1]); //on stocke le numéro du fichier qu'on veut récupérer dans le tableau
           i++;
           printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
           scanf("%d", &numFichier);
@@ -95,9 +99,15 @@ int main(int argc, char const *argv[])
      for (int j = 0; j < i; j++)
      {
           printf("envoi fichier %d\n", j);
+          int tailleChaine = strlen(tabFichiersAEnvoyer[j]);
+          write(socketCommClient,&tailleChaine,sizeof(int));
           printf("taille ecrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], strlen(tabFichiersAEnvoyer[j]))); //envoi des fichiers au serveur
      }
      printf("J'ai fini d'envoyer les fichiers\n");
 
      return 0;
+}
+
+void clear(){
+     system("clear");
 }

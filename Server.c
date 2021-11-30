@@ -116,14 +116,14 @@ int main(int argc, char const *argv[])
                //printf("Nb de fichiers à lire : %d\n", nbFichiersALire); ok
 
                int i = 0;
-               char *tamponString = malloc(sizeof(char) * 20);
+               int tailleTampon;
+               char** tamponString = malloc(sizeof(char*)*5);
                while (i < nbFichiersALire)
                {
-                    while (read(socketService, tamponString, sizeof(char) * 20) == -1);
-                    printf("Valeur lue : %s\n", tamponString);
-                    //mettre les deux lignes du dessous dans une méthode 'resetTampon'
-                    free(tamponString);
-                    tamponString = malloc(sizeof(char) * 20);
+                    while (read(socketService, &tailleTampon, sizeof(int)) == -1);
+                    tamponString[i] = malloc(sizeof(char) * tailleTampon);
+                    while (read(socketService, tamponString[i], sizeof(char) * tailleTampon) == -1);
+                    printf("Valeur lue : %s\n", tamponString[i]);
                     i++;
                }
                printf("Enregistrement terminé\n");
