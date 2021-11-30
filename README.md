@@ -2,9 +2,8 @@
 Pour compiler le programme et l'éxecuter
 Lancer 
 ./run.sh
-qui compile tout correctement et lance le serveur
-puis dans un autre terminal Lancer
-Exec/client
+Il ouvre tout seul deux fenetre et lance les deux programme apres avoir compiler
+Pas besoin nd'ouvrir 2 terminal il s'en occupe
 
 
 

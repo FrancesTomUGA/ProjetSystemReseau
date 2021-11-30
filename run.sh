@@ -3,4 +3,5 @@ gcc -c -o Objets/Reception.o Source/Reception.c
 gcc -c -o Objets/Client.o Source/Client.c
 gcc -o Exec/client Objets/Client.o Objets/Affichage.o Objets/Reception.o 
 gcc -o Exec/server Source/Server.c
-Exec/server
+gnome-terminal --tab -e Exec/server
+Exec/client
