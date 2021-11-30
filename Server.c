@@ -115,9 +115,9 @@ int main(int argc, char const *argv[])
                while(read(socketService, &nbFichiersALire, sizeof(int)) == -1);
 
                int i = 0;
-               char* tamponString;
+               char* tamponString = malloc(sizeof(char)*20);
                while(i < nbFichiersALire) {
-                    while(read(socketService, tamponString, sizeof(char*)) == -1);
+                    while(read(socketService, tamponString, sizeof(char)*20) == -1);
                     printf("Valeur lue : %s\n", tamponString);
                     i++;
                }

@@ -74,27 +74,28 @@ int main(int argc, char const *argv[])
      tabFichiersRepertoireClient[0] = "fleur.jpg";
      tabFichiersRepertoireClient[1] = "arbre.jpg";
      tabFichiersRepertoireClient[2] = "dauphin.jpg";
-     tabFichiersRepertoireClient[3] = "tortue.jpg";
+     tabFichiersRepertoireClient[3] = "tortuesnapping.jpg";
      tabFichiersRepertoireClient[4] = "lion.jpg";
 
-     int numFichier;  //numéro de fichier à envoyer choisi par l'utilisateur
+     int numFichier = 0;  //numéro de fichier à envoyer choisi par l'utilisateur
      int i = 0;
-     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : \n");
-     scanf("%d\n", &numFichier);
+     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
+     scanf("%d", &numFichier);
      while (i < 10 && numFichier != -1)
      {
           printf("Numéro de fichier : %d\n", numFichier);
-          tabFichiersAEnvoyer[i] = tabFichiersRepertoireClient[numFichier - 1]; //on stocke le numéro du fichier qu'on veut récupérer dans le tableau
+          strcpy(tabFichiersAEnvoyer[i], tabFichiersRepertoireClient[numFichier - 1]); //on stocke le numéro du fichier qu'on veut récupérer dans le tableau
           i++;
-          printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : \n");
-          scanf("%d\n", &numFichier);
+          printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
+          scanf("%d", &numFichier);
      }
 
      write(socketCommClient, &i, sizeof(int)); //envoi du nombre de fichiers que va recevoir le serveur au serveur
 
      for (int j = 0; j < i; j++)
      {
-          write(socketCommClient, tabFichiersAEnvoyer[j], sizeof(char*)); //envoi des fichiers au serveur
+          printf("envoi fichier %d\n", j);
+          printf("taille ecrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], strlen(tabFichiersAEnvoyer[j]))); //envoi des fichiers au serveur
      }
      printf("J'ai fini d'envoyer les fichiers\n");
 
