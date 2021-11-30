@@ -46,11 +46,12 @@ Nous avons tout d'abord créé une socket permettant au serveur d'écouter les m
 Afin d'éviter une accumulation trop importante de connections en attente, nous avons décidé de limiter leur nombre à 5 (car nous avons décidé que c'était suffisant dans notre cas).\\
 Nous avons géré l'acceptation de la connection du client au serveur dans une boucle \textbf{while(1)} (1 car tout le temps vrai, ce qui nous permet de gérer manuellement la mort du serveur étant donné que les fonctionnalités s'occupant de cet aspect ne sont pas encore implémentées). Dans cette boucle, le serveur lit le message envoyé par le client via une socket de service renvoyée par la fonction \textbf{accept()}.\\
 Pour le test de cette fonction, nous avons rencontré une erreur : nous souhaitions afficher un message lors de la réussite du test, hors rien ne s'affichait sur la console. Nous nous sommes rendu compte qu'il manquait un "\textbf{\textbackslash n}" à la fin du \textbf{printf()}, car sans celui-ci, il n'y avait pas de flush du buffer sur la sortie standard, donc pas d'affichage.
-Afin de permettre au serveur de traiter plusieurs connections simultanées, ce dernier délègue chaque nouvelle connection à un processus fils (1 fils par connection), créé au sein d'un \textbf{switch(fork())} :\\
-\begin{enumerate}
-\item cas -1, erreur de création du processus, on arrête le programme (\textbf{exit(-1)})
-\item cas 0, comportement du fils : fermeture de la socket d'écoute (car le processus fils ne l'utilise jamais), réinitialisation du comportement du signal \textbf{SIGCHLD} au cas où ce processus doive lui-même créer des fils.
-\end{enumerate}
+Afin de permettre au serveur de traiter plusieurs connections simultanées, ce dernier délègue chaque nouvelle connection à un processus fils (1 fils par connection), créé au sein d'un \textbf{switch(fork())} :
+\begin{description}
+\item [cas -1] erreur de création du processus, on arrête le programme (\textbf{exit(-1)})
+\item [cas 0] comportement du fils : fermeture de la socket d'écoute (car le processus fils ne l'utilise jamais), réinitialisation du comportement du signal \textbf{SIGCHLD} au cas où ce processus doive lui-même créer des fils.
+\item [cas default] comportement du père, qui ici ne fait rien. On pourrait vouloir le faire attendre la mort de son fils à l'aide d'un \textbf{wait(NULL)}, mais en faisant cela, on bloquerait le programme qui ne pourrait ainsi pas traiter plusieurs connections et requêtes simultanément.
+\end{description}
 
 
 
