@@ -13,14 +13,14 @@
 #include "Reception.h"
 #endif
 /**
- * @brief Demande a l'utilisateur ce qu'ils souhaite effectuer et renvoie le code d'action correspondant
+ * @brief Demande à l'utilisateur ce qu'il souhaite effectuer et renvoie le code d'action correspondant
  * 
  * @return int 
  */
 int choixAction()
 {
      int choix;
-     printf("Que voulez-vous faire ?\n1- Envoyer des fichiers \n2- Récupérer des fichiers\n3- Arréter le programme(Défault)\n");
+     printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
      scanf("%d", &choix);
      if (choix != 1 && choix != 2 && choix != 3)
      {
@@ -31,7 +31,7 @@ int choixAction()
 
 /**
  * @brief Coeur du programme CLIENT il crée la socket permettant de discuter avec le serveur
- * puis interagis avec l'utilisateur afin de satisfaire ces demandes
+ * puis interagi avec l'utilisateur afin de satisfaire ses demandes
  * 
  * @param argc 
  * @param argv 
@@ -53,13 +53,13 @@ int main(int argc, char const *argv[])
           printf("Tout va bien création socket\n");
      }
 
-     //récupère les informations du serveur grâce au nom de la machine
+     //Récupère les informations du serveur grâce au nom de la machine
      struct hostent *infoServeur = gethostbyname("localhost");
      struct sockaddr_in socketServeur;
 
      socketServeur.sin_family = AF_INET;
      socketServeur.sin_port = htons(6067);
-     memcpy(&socketServeur.sin_addr.s_addr, infoServeur->h_addr_list[0], infoServeur->h_length); //affectation à l'aide de memcpy
+     memcpy(&socketServeur.sin_addr.s_addr, infoServeur->h_addr_list[0], infoServeur->h_length); //Affectation à l'aide de memcpy
 
      printf("Adresse serveur : %s\n", inet_ntoa(socketServeur.sin_addr));
 
@@ -74,7 +74,7 @@ int main(int argc, char const *argv[])
      }
 
      int affichage;
-     while ((affichage = choixAction()) != 3)//tant que l'utilisateur de souhaite pas arreter
+     while ((affichage = choixAction()) != 3)     //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
           switch (affichage)
