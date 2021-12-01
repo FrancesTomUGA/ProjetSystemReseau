@@ -72,15 +72,18 @@ int main(int argc, char const *argv[])
      {
           printf("Connection établie\n");
      }
-
+     //pointeur qui permettra a tout le programme de récuperer la liste des fichiers du dossier
+     char **listeFichier;
+     //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
+     char **tabFichiersAEnvoyer;
      int affichage;
-     while ((affichage = choixAction()) != 3)     //Tant que l'utilisateur ne souhaite pas arrêter
+     while ((affichage = choixAction()) != 3) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
           switch (affichage)
           {
           case 1:
-               envoieFichier(socketCommClient);
+               envoieFichier(socketCommClient,listeFichier, tabFichiersAEnvoyer);
                break;
           case 2:
                receptionFichier();
