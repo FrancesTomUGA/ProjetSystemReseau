@@ -1,5 +1,6 @@
 #ifndef ENVOI_C
 #define ENVOI_C
+#define ENVOI 1
 #include "Envoi.h"
 #include "Transfert.h"
 
@@ -32,7 +33,7 @@ char **recupererListeFichier(char **laListeDesFichiers, int *nbFichier)
           //Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
           if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
           {
-               *nbFichier+=1;
+               *nbFichier += 1;
           }
      }
      //Allocation de l'espace mémoire dont on aura besoin pour stocker les chemins par la suite
@@ -49,7 +50,7 @@ char **recupererListeFichier(char **laListeDesFichiers, int *nbFichier)
                //printf("dname = : %s\n",lecture->d_name);
                laListeDesFichiers[*nbFichier] = lecture->d_name;
                //printf("resultat = : %s\n",laListeDesFichiers[nbFichier]);
-               *nbFichier = *nbFichier+1;
+               *nbFichier = *nbFichier + 1;
           }
      }
      closedir(rep);
@@ -85,7 +86,7 @@ void selectionEnvoie(int socketCommClient, char **laListeDesFichiers, char **tab
      for (int j = 0; j < i; j++)
      {
 
-          envoiImageClientServeur(tabFichiersEnvoi[j],socketCommClient);
+          envoiImageClientServeur(tabFichiersEnvoi[j], socketCommClient);
 
           /*
           printf("Envoi fichier(s) %d\n", j);
@@ -122,8 +123,11 @@ void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDe
                     page--;
                }
                break;
-          case 2:
+          case 2: ;
+               int code = ENVOI;
+               write(socketCommClient, &code, sizeof(int));
                selectionEnvoie(socketCommClient, laListeDesFichiers, tabFichiersEnvoi);
+
                break;
           case 3:
                if (page != (nbFichier / 4))
@@ -132,7 +136,7 @@ void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDe
                     //page = (nbFichier / 4) - 1;
                }
                //debut++;
-               
+
                break;
           default:
                break;
@@ -142,12 +146,10 @@ void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDe
 
 void envoieFichier(int socketCommClient, char **laListeDesFichiers, char **tabFichiersEnvoi)
 {
-     int nbFichier=0;
+     int nbFichier = 0;
      laListeDesFichiers = recupererListeFichier(laListeDesFichiers, &nbFichier);
 
      affichageListeFichier(socketCommClient, nbFichier, laListeDesFichiers, tabFichiersEnvoi);
-
-     //transfertClientServeur(tabFichiersEnvoi);
 
      if (laListeDesFichiers == NULL)
      {

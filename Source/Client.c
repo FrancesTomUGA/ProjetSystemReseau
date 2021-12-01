@@ -11,6 +11,10 @@
 #include <arpa/inet.h>
 #include "Envoi.h"
 #include "Reception.h"
+#define ENVOI 1
+#define RECEPTION 2
+#define ARRET 3
+#define SORTIE -1
 #endif
 /**
  * @brief Demande à l'utilisateur ce qu'il souhaite effectuer et renvoie le code d'action correspondant
@@ -22,9 +26,13 @@ int choixAction()
      int choix;
      printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
      scanf("%d", &choix);
-     if (choix != 1 && choix != 2 && choix != 3)
+     if (choix != ENVOI && choix != RECEPTION && choix != ARRET)
      {
           choix = 3;
+          if (choix == 3)
+          {
+               choix = -1;
+          }
      }
      return choix;
 }
@@ -76,21 +84,23 @@ int main(int argc, char const *argv[])
      char **listeFichier;
      //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
      char **tabFichiersAEnvoyer;
-     int affichage;
-     while ((affichage = choixAction()) != 3) //Tant que l'utilisateur ne souhaite pas arrêter
+     int action;
+     while ((action = choixAction()) != ARRET) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
-          switch (affichage)
+          switch (action)
           {
-          case 1:
-               envoieFichier(socketCommClient,listeFichier, tabFichiersAEnvoyer);
+          case ENVOI:
+               envoieFichier(socketCommClient, listeFichier, tabFichiersAEnvoyer);
                break;
-          case 2:
+          case RECEPTION:
                receptionFichier();
                break;
           }
           clear();
      }
+     int sortie = SORTIE;
+     write(socketCommClient, &sortie, sizeof(int));
      printf("Fin du programme\n");
      return 0;
 }

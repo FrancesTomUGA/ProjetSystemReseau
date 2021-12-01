@@ -8,7 +8,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "Transfert.h"
-
+#include <pthread.h>
+#define RECEVOIR 1
+#define ENVOYER 2
+#define FINCONNEXION -1
 /**
  * @brief Traitement effectué lors de la réception du signal SIGCHLD
  * 
@@ -51,7 +54,14 @@ int main(int argc, char const *argv[])
      socketClient.sin_family = AF_INET; //Pointeur structure : (->) pour accès aux champs
      socketClient.sin_port = htons(6067);
      socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
-
+     /*int sockfd = 0;
+     int yes = 1;
+     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+     {
+          perror("setsockopt");
+          pthread_exit(NULL);
+     }
+     */
      if (bind(socketEcoute, (struct sockaddr *)&socketClient, sizeof(socketClient)) == -1)
      {
           perror("bind()");
@@ -101,31 +111,42 @@ int main(int argc, char const *argv[])
 
           case 0:
                //Comportement du fils
-
                close(socketEcoute); //Fermeture du descripteur de fichier
 
                signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
-               /* read(socketService, &tampon, sizeof(int));
-               printf("Valeur lue : %d\n", tampon);
-
-               tampon += 3;
-               write(socketService, &tampon, sizeof(int)); */ //Partie de test d'envoi int phase 1
-
-               int nbFichiersALire = 0;
-               while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
-               printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
-
-               int i = 0;
-               while (i < nbFichiersALire)
+               int action;
+               while (read(socketService, &action, sizeof(int)) == -1)
+                    ;
+               while (action != FINCONNEXION)
                {
-                    receptionImageServeur(socketService);
-                    i++;
+                    switch (action)
+                    {
+                    case RECEVOIR:;
+                         int nbFichiersALire = 0;
+                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1)
+                              ;
+                         printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
+
+                         int i = 0;
+                         while (i < nbFichiersALire)
+                         {
+                              receptionImageServeur(socketService);
+                              i++;
+                         }
+                         printf("Enregistrement terminé\n");
+                         break;
+                    case ENVOYER:
+                         break;
+                    case FINCONNEXION:
+                         break;
+                    }
+                    while (read(socketService, &action, sizeof(int)) == -1)
+                         ;
                }
-               printf("Enregistrement terminé\n");
+               printf("Fin de la connexion avec le client\n");
                exit(0);
                break;
-
           default:
                //Comportement du père
                break;
