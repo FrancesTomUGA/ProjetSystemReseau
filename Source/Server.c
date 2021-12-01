@@ -9,9 +9,9 @@
 #include <sys/wait.h>
 
 /**
- * @brief traitement effectué lors de la réception du signal SIGCHLD
+ * @brief Traitement effectué lors de la réception du signal SIGCHLD
  * 
- * @param s //signal
+ * @param s //Signal
  */
 void handler(int s)
 {
@@ -27,7 +27,7 @@ void handler(int s)
  */
 int main(int argc, char const *argv[])
 {
-     //définition du comportement pour le traitement du signal SIGCHLD
+     //Définition du comportement pour le traitement du signal SIGCHLD
      struct sigaction ac;
      ac.sa_handler = handler;
      ac.sa_flags = SA_RESTART;
@@ -47,7 +47,7 @@ int main(int argc, char const *argv[])
      //Attachement de la socket à un port
      struct sockaddr_in socketClient;
 
-     socketClient.sin_family = AF_INET; // pointeur structure : (->) pour accès aux champs
+     socketClient.sin_family = AF_INET; //Pointeur structure : (->) pour accès aux champs
      socketClient.sin_port = htons(6067);
      socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
 
@@ -79,7 +79,7 @@ int main(int argc, char const *argv[])
      {
           int socketService;
           if ((socketService = accept(socketEcoute, (struct sockaddr *)&socketClient, &len)) == -1)
-          { /* /!\l'appel de la fonction accept est bloquant/!\ */
+          { /* /!\ L'appel de la fonction accept est bloquant /!\ */
                perror("accept()");
                exit(-1);
           }
@@ -93,27 +93,27 @@ int main(int argc, char const *argv[])
           switch (fork())
           {
           case -1:
-               //erreur
+               //Erreur
                perror("fork()");
                exit(-1);
                break;
 
           case 0:
-               //comportement du fils
+               //Comportement du fils
 
-               close(socketEcoute); //fermeture du descripteur de fichier
+               close(socketEcoute); //Fermeture du descripteur de fichier
 
-               signal(SIGCHLD, SIG_DFL); //redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
+               signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
-               read(socketService, &tampon, sizeof(int));
+               /* read(socketService, &tampon, sizeof(int));
                printf("Valeur lue : %d\n", tampon);
 
                tampon += 3;
-               write(socketService, &tampon, sizeof(int));
+               write(socketService, &tampon, sizeof(int)); */ //Partie de test d'envoi int phase 1
 
                int nbFichiersALire = 0;
                while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
-               //printf("Nb de fichiers à lire : %d\n", nbFichiersALire); ok
+               printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
 
                int i = 0;
                int tailleTampon;
@@ -131,7 +131,7 @@ int main(int argc, char const *argv[])
                break;
 
           default:
-               //comportement du père
+               //Comportement du père
                break;
           }
      }
