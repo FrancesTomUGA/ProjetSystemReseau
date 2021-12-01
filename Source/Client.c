@@ -39,6 +39,8 @@ int choixAction()
  */
 int main(int argc, char const *argv[])
 {
+     char** listeFichiers;
+     char** tabFichiersAEnvoyer;
 
      //Création d'une socket communication client
      int socketCommClient = socket(AF_INET, SOCK_STREAM, 0);
@@ -80,7 +82,7 @@ int main(int argc, char const *argv[])
           switch (affichage)
           {
           case 1:
-               envoieFichier(socketCommClient);
+               envoieFichier(socketCommClient, listeFichiers, tabFichiersAEnvoyer);
                break;
           case 2:
                receptionFichier();

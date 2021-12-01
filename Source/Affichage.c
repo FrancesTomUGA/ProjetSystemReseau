@@ -14,7 +14,7 @@ void clear()
      system("clear");
 }
 
-int recupererListeFichier()
+int recupererListeFichier(char** listeFichier)
 {
      int nbFichier = 0;
 
@@ -52,7 +52,7 @@ int recupererListeFichier()
      return nbFichier; //renvoie le nombre de fichier;
 }
 
-void selectionEnvoie(int socketCommClient)
+void selectionEnvoie(int socketCommClient, char** listeFichier, char** tabFichiersAEnvoyer)
 {
      tabFichiersAEnvoyer = malloc(sizeof(char *) * 4);
 
@@ -81,7 +81,7 @@ void selectionEnvoie(int socketCommClient)
      printf("J'ai fini d'envoyer les fichiers\n"); //Envoi fini
 }
 
-void affichageListeFichier(int socketCommClient, int nbFichier)
+void affichageListeFichier(int socketCommClient, int nbFichier, char** listeFichier, char** tabFichiersAEnvoyer)
 {
 
      int page = 0;   //page courante
@@ -106,7 +106,7 @@ void affichageListeFichier(int socketCommClient, int nbFichier)
                page--;
                break;
           case 2:
-               selectionEnvoie(socketCommClient);
+               selectionEnvoie(socketCommClient, listeFichier, tabFichiersAEnvoyer);
                break;
           case 3:
                if (page == (nbFichier / 4))
@@ -122,11 +122,11 @@ void affichageListeFichier(int socketCommClient, int nbFichier)
      }
 }
 
-void envoieFichier(int socketCommClient)
+void envoieFichier(int socketCommClient, char** listeFichier, char** tabFichiersAEnvoyer)
 {
      int nbFichier = 0;
-     nbFichier = recupererListeFichier();
-     affichageListeFichier(socketCommClient, nbFichier);
+     nbFichier = recupererListeFichier(listeFichier);
+     affichageListeFichier(socketCommClient, nbFichier, listeFichier, tabFichiersAEnvoyer);
      free(listeFichier);
      free(tabFichiersAEnvoyer);
      printf("Vous-avez choisis d'envoyer des fichiers\n");
