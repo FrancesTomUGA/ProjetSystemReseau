@@ -5,10 +5,12 @@
 #include <netinet/ip.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "Transfert.h"
 #include <pthread.h>
+#include <dirent.h>
 #define RECEVOIR 1
 #define ENVOYER 2
 #define FINCONNEXION -1
@@ -136,7 +138,67 @@ int main(int argc, char const *argv[])
                          }
                          printf("Enregistrement terminé\n");
                          break;
-                    case ENVOYER:
+                    case ENVOYER:;
+                         printf("On va envoyer des fichier au client\n");
+                         struct dirent *lecture;
+                         DIR *rep; //Permet de stocker les informations du répertoire
+
+                         rep = opendir("./FilesServeur");
+                         if (rep == NULL)
+                         {
+                              printf("erreur ouverture rep\n");
+                              exit(-1);
+                         }
+                         int nbFichier = 0;
+                         while ((lecture = readdir(rep))) //Pour chaque fichier trouvé
+                         {
+
+                              //Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
+                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
+                              {
+                                   nbFichier = nbFichier + 1;
+                              }
+                         }
+                         //Allocation de l'espace mémoire dont on aura besoin pour stocker les chemins par la suite
+                         char **laListeDesFichiers = (char **)malloc(sizeof(char *) * (nbFichier));
+
+                         //Boucle identique mais cette fois on enregistre les chemins de fichiers puisque l'on a désormais la place pour le faire
+                         nbFichier = 0;
+                         rep = opendir("./FilesServeur");
+                         while ((lecture = readdir(rep)))
+                         {
+                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
+                              {
+                                   laListeDesFichiers[nbFichier] = malloc(sizeof(char) * strlen(lecture->d_name));
+                                   //printf("dname = : %s\n",lecture->d_name);
+                                   laListeDesFichiers[nbFichier] = lecture->d_name;
+                                   //printf("resultat = : %s\n",laListeDesFichiers[nbFichier]);
+                                   nbFichier = nbFichier + 1;
+                              }
+                         }
+                         closedir(rep);
+                         printf("Nb de fichiers à lire : %d\n", nbFichier);
+                         write(socketService, &nbFichier, sizeof(int));
+                         for (int i = 0; i < nbFichier; i++)
+                         {
+                              int longueur = strlen(laListeDesFichiers[i]);
+                              printf("La longueur de %s est de %d\n", laListeDesFichiers[i], longueur);
+                              write(socketService, &longueur, sizeof(int));
+                              write(socketService, laListeDesFichiers[i], strlen(laListeDesFichiers[i]));
+                         }
+                         int fichierAEnvoyer;
+
+                         while (read(socketService, &fichierAEnvoyer, sizeof(int)) == -1)
+                              ;
+                         char **listeFicAEnvoyer = malloc(sizeof(char *) * fichierAEnvoyer);
+                         for (int i = 0; i < fichierAEnvoyer; i++)
+                         {
+                              int taille = 0;
+                              read(socketService,&taille,sizeof(int));
+                              listeFicAEnvoyer[i]= malloc(sizeof(char)*taille);
+                              read(socketService,listeFicAEnvoyer[i],taille);
+                              printf("le client veux telecharger : %s\n",listeFicAEnvoyer[i]);
+                         }
                          break;
                     case FINCONNEXION:
                          break;

@@ -5,5 +5,5 @@
  * @brief 
  * Pour le moment rien
  */
-void receptionFichier();
+void receptionFichier(int socketCommClient);
 #endif
