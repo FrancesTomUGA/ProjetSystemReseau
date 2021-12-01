@@ -28,11 +28,10 @@ int main(int argc, char *argv[])
     {
         while (!feof(types) && i < numberOfTypes)
         {
-
             printf("i = %d\n", i);
             char *typeMime = malloc(sizeof(char) * TAILLE_TYPE);
             typeSSSMime[i] = fgets(typeMime, TAILLE_TYPE, types);
-            // printf("%s\n", typeMime);
+            typeSSSMime[i][strlen(typeSSSMime[i])-1] = '\0';
             i++;
         }
         fclose(types);
@@ -47,34 +46,6 @@ int main(int argc, char *argv[])
     {
         printf("type : %s\n", typeSSSMime[i]);
     }
-
-    /* 
-    // Récupération des types mime dans un tableau (en bas niveau)
-    int source = open("MimeTypes.txt", O_RDONLY);
-    char tampon[TAILLE_TYPE];
-
-    if (source != -1) 
-    {
-        for (int i = 0; i < numberOfTypes; i++) 
-        {
-            char* typeMime = malloc(sizeof(char) * TAILLE_TYPE);
-            typeSSSMime[i] = read(source, &tampon, TAILLE_TYPE); //tampon à vérifier ???
-            // ou peut être 
-            // read(source, &typeSSSMime[i], TAILLE_TYPE); //???
-        }
-        close (source);
-    }
-    else
-    {
-        printf(stderr, "Problème de lecture du fichier des Types Mime\n");
-    }
-    */
-
-    // Vérification d'admissibilité du fichier
-
-    /*
-    Le fichier (l'image) ici est dans le même répertoire que le fichier Admis.c 
-    */
 
     int bool = 0;
 
@@ -95,11 +66,9 @@ int main(int argc, char *argv[])
         close(1); //redirection de la sortie standard
         dup(f[1]);
         close(f[1]);
-        close(f[0]); //fermeture des descripteurs inutilisés
-        
-        //printf("retour exec : %d\n", execvp("file", cmd));
+        close(f[0]); //fermeture des descripteurs inutilisés        
         execvp("file", cmd);
-        //la sortie de "file" (a.k.a. le type mime du fichier) ira dans le pipe
+
     default:
         switch (fork())
         {
@@ -109,51 +78,29 @@ int main(int argc, char *argv[])
 
             //comportement du père
             close(f[1]); //fermeture du descripteur inutilisé
-            //close(0);
-            //dup(f[0]);
-            //close(f[0]);
-            //printf("résultat lecture : \n");
-            //execlp("cat", "cat", (char*)0);
 
             char typeFichierRecup[100];
             read(f[0], typeFichierRecup, sizeof(typeFichierRecup));
-            /*
-            int tAILLm = strlen(typeFichierRecup);
-            typeFichierRecup[tAILLm]='\0';
-            char *delim = strtok(typeFichierRecup, " "); // délimiteur de la chaîne de caractères en fonction d'espaces
-            //printf("%s\n", delim);
+
+            char* recup = strrchr(typeFichierRecup, ' '); // Récupération du type en récupérant tout se qui est situé après la dernière occurence du caractère 'espace'
             
+            char *delim = strtok(typeFichierRecup, "\n");
             char *tablOutput[2];
             int i = 0;
             while (delim != NULL){
-                
                 tablOutput[i++] = delim;
                 delim = strtok(NULL, " ");
             }
-            
-            for (int k =0; k <2; k++){int tAILLm = strlen(typeFichierRecup);
-            typeFichierRecup[tAILLm]='\0';
-                printf("le tableau = %s\n", tablOutput[k]);
-            }
-            
-            printf("type lu : %s\n", tablOutput[1]);
-            */
-            
-            char* recup = strrchr(typeFichierRecup, ' '); // Récupération du type en récupérant tout se qui est situé après la dernière occurence du caractère 'espace'
+
+            printf("recup : %s\n", recup);
+            printf("tableoutput : %s\n", tablOutput[0]);
             int l;
             
-            for(l = 0; recup[l]; l++)
-               recup[l] = recup[l+1]; // Suppression de l'espace en début de la chaîne de caractères
-            // memset(&recup[l+1], '\0', 1);
+            for(l = 1; l < strlen(recup); l++){
+               recup[l-1] = recup[l]; // Suppression de l'espace en début de la chaîne de caractères
+            }
+            recup[l-1] = '\0';
             printf("type lu : %s\n", recup);
-
-            /*
-            recup++;
-            int taille = strlen(recup);
-            recup[taille-5] ='\0';
-            // memset(&recup[l+1], '\0', 1);
-            printf("type lu : %s\n", recup);
-            */
 
             int j = 0;
             while (j < numberOfTypes && bool == 0)
