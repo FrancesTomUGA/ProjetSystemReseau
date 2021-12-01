@@ -9,5 +9,5 @@
 
 void receptionFichier()
 {
-     printf("Vous-avez choisis de récuperer des fichiers\n");
+     printf("Vous-avez choisi de récuperer des fichiers\n");
 }

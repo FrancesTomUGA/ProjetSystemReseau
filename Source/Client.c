@@ -9,29 +9,37 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "Affichage.h"
+#include "Envoi.h"
 #include "Reception.h"
+#define ENVOI 1
+#define RECEPTION 2
+#define ARRET 3
+#define SORTIE -1
 #endif
 /**
- * @brief Demande a l'utilisateur ce qu'ils souhaite effectuer et renvoie le code d'action correspondant
+ * @brief Demande à l'utilisateur ce qu'il souhaite effectuer et renvoie le code d'action correspondant
  * 
  * @return int 
  */
 int choixAction()
 {
      int choix;
-     printf("Que voulez-vous faire ?\n1- Envoyer des fichiers \n2- Récupérer des fichiers\n3- Arréter le programme(Défault)\n");
+     printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
      scanf("%d", &choix);
-     if (choix != 1 && choix != 2 && choix != 3)
+     if (choix != ENVOI && choix != RECEPTION && choix != ARRET)
      {
           choix = 3;
+          if (choix == 3)
+          {
+               choix = -1;
+          }
      }
      return choix;
 }
 
 /**
  * @brief Coeur du programme CLIENT il crée la socket permettant de discuter avec le serveur
- * puis interagis avec l'utilisateur afin de satisfaire ces demandes
+ * puis interagi avec l'utilisateur afin de satisfaire ses demandes
  * 
  * @param argc 
  * @param argv 
@@ -39,8 +47,6 @@ int choixAction()
  */
 int main(int argc, char const *argv[])
 {
-     char** listeFichiers;
-     char** tabFichiersAEnvoyer;
 
      //Création d'une socket communication client
      int socketCommClient = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,13 +61,13 @@ int main(int argc, char const *argv[])
           printf("Tout va bien création socket\n");
      }
 
-     //récupère les informations du serveur grâce au nom de la machine
+     //Récupère les informations du serveur grâce au nom de la machine
      struct hostent *infoServeur = gethostbyname("localhost");
      struct sockaddr_in socketServeur;
 
      socketServeur.sin_family = AF_INET;
      socketServeur.sin_port = htons(6067);
-     memcpy(&socketServeur.sin_addr.s_addr, infoServeur->h_addr_list[0], infoServeur->h_length); //affectation à l'aide de memcpy
+     memcpy(&socketServeur.sin_addr.s_addr, infoServeur->h_addr_list[0], infoServeur->h_length); //Affectation à l'aide de memcpy
 
      printf("Adresse serveur : %s\n", inet_ntoa(socketServeur.sin_addr));
 
@@ -74,22 +80,27 @@ int main(int argc, char const *argv[])
      {
           printf("Connection établie\n");
      }
-
-     int affichage;
-     while ((affichage = choixAction()) != 3)//tant que l'utilisateur de souhaite pas arreter
+     //pointeur qui permettra a tout le programme de récuperer la liste des fichiers du dossier
+     char **listeFichier;
+     //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
+     char **tabFichiersAEnvoyer;
+     int action;
+     while ((action = choixAction()) != ARRET) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
-          switch (affichage)
+          switch (action)
           {
-          case 1:
-               envoieFichier(socketCommClient, listeFichiers, tabFichiersAEnvoyer);
+          case ENVOI:
+               envoieFichier(socketCommClient, listeFichier, tabFichiersAEnvoyer);
                break;
-          case 2:
+          case RECEPTION:
                receptionFichier();
                break;
           }
           clear();
      }
+     int sortie = SORTIE;
+     write(socketCommClient, &sortie, sizeof(int));
      printf("Fin du programme\n");
      return 0;
 }

@@ -1,7 +1,7 @@
-gcc -c -o Objets/Affichage.o Source/Affichage.c
+gcc -c -o Objets/Envoi.o Source/Envoi.c
 gcc -c -o Objets/Reception.o Source/Reception.c
 gcc -c -o Objets/Client.o Source/Client.c
-gcc -o Exec/client Objets/Client.o Objets/Affichage.o Objets/Reception.o 
-gcc -o Exec/server Source/Server.c
-gnome-terminal --tab -e Exec/server
-Exec/client
+gcc -c -o Objets/Server.o Source/Server.c
+gcc -c -o Objets/Transfert.o Source/Transfert.c
+gcc -g -o Exec/client Objets/Client.o Objets/Envoi.o Objets/Reception.o Objets/Transfert.o
+gcc -g -o Exec/server Objets/Server.o Objets/Transfert.o
