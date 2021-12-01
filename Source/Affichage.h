@@ -5,7 +5,7 @@
 char** listeFichier;
 
 //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
-char** tabFichiersAEnvoyer;
+
 
 /**
  * @brief Efface le terminal pour un affichage propre
@@ -26,7 +26,7 @@ int recupererListeFichier();
  * L'utilisateur peux sélectionnier plusieurs fichiers qui seront ajouter dans le tableau afin d'etre envoyer par la suite
  * @param socketCommClient 
  */
-void selectionEnvoie(int socketCommClient);
+void selectionEnvoie(int socketCommClient,char** tabFichiersAEnvoyer);
 
 /**
  * @brief Affiche la liste des fichiers présent dans la listeFichier
@@ -39,7 +39,7 @@ void selectionEnvoie(int socketCommClient);
  * @param listeFIchier un tableau de chaines de caractères contenant la liste de tous les fichiers dans le répertoire d'images
  * @param tabFichiersAEnvoyer un tableau de chaines de caractères contenant la liste des fichiers à envoyer
  */
-void affichageListeFichier(int socketCommClient,int nbFichier);
+void affichageListeFichier(int socketCommClient,int nbFichier,char** tabFichiersAEnvoyer);
 
 /**
  * @brief Appelle toute les méthodes permettant le dialogue avec l'utilisateur concernant l'envoie de fichier vers le serveur

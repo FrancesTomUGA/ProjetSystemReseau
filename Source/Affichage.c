@@ -56,9 +56,9 @@ int recupererListeFichier()
      return nbFichier; //Renvoie le nombre de fichier;
 }
 
-void selectionEnvoie(int socketCommClient)
+void selectionEnvoie(int socketCommClient,char** tabFichierEnvoi)
 {
-     tabFichiersAEnvoyer = malloc(sizeof(char *) * 4);
+     tabFichierEnvoi = malloc(sizeof(char *) * 4);
      int numFichier = 0; //Numéro du fichier selectionné
      int i = 0;          //Nombre de fichiers à envoyer
 
@@ -66,8 +66,8 @@ void selectionEnvoie(int socketCommClient)
      scanf("%d", &numFichier);
      while (i < 4 && numFichier != -1)
      {
-          tabFichiersAEnvoyer[i] = malloc(sizeof(char) * strlen(listeFichier[numFichier - 1])); //Allocation mémoire pour la nouvelle chaîne
-          strcpy(tabFichiersAEnvoyer[i], listeFichier[numFichier - 1]);                         //On stocke le texte correspondant au numéro du fichier choisi
+          tabFichierEnvoi[i] = malloc(sizeof(char) * strlen(listeFichier[numFichier - 1])); //Allocation mémoire pour la nouvelle chaîne
+          strcpy(tabFichierEnvoi[i], listeFichier[numFichier - 1]);                         //On stocke le texte correspondant au numéro du fichier choisi
           i++;
           printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
           scanf("%d", &numFichier);
@@ -78,14 +78,14 @@ void selectionEnvoie(int socketCommClient)
      for (int j = 0; j < i; j++)
      {
           printf("Envoi fichier(s) %d\n", j);
-          int tailleChaine = strlen(tabFichiersAEnvoyer[j]);
+          int tailleChaine = strlen(tabFichierEnvoi[j]);
           write(socketCommClient, &tailleChaine, sizeof(int));                                                              //On envoi d'abord la taille de la chaine pour plus de simplicité
-          printf("Taille écrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], sizeof(char)*tailleChaine)); //Envoi la chaine au serveur
+          printf("Taille écrite : %ld\n", write(socketCommClient, tabFichierEnvoi[j], sizeof(char)*tailleChaine)); //Envoi la chaine au serveur
      }
      printf("J'ai fini d'envoyer les fichiers\n"); //Envoi terminé
 }
 
-void affichageListeFichier(int socketCommClient, int nbFichier)
+void affichageListeFichier(int socketCommClient, int nbFichier,char** tabFichierEnvoi)
 {
      int page = 0;   //Page courante
      int action = 0; //Représente le choix fait par l'utilisateur
@@ -111,7 +111,7 @@ void affichageListeFichier(int socketCommClient, int nbFichier)
                page--;
                break;
           case 2:
-               selectionEnvoie(socketCommClient);
+               selectionEnvoie(socketCommClient,tabFichierEnvoi);
                break;
           case 3:
                if (page == (nbFichier / 4))
@@ -129,9 +129,10 @@ void affichageListeFichier(int socketCommClient, int nbFichier)
 
 void envoieFichier(int socketCommClient)
 {
+     char** tabFichiersAEnvoyer;
      int nbFichier = 0;
      nbFichier = recupererListeFichier();
-     affichageListeFichier(socketCommClient, nbFichier);
+     affichageListeFichier(socketCommClient, nbFichier,tabFichiersAEnvoyer);
      free(listeFichier);
      free(tabFichiersAEnvoyer);
      printf("Vous-avez choisi d'envoyer des fichiers\n");
