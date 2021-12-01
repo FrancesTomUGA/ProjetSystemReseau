@@ -7,6 +7,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include "Transfert.h"
 
 /**
  * @brief Traitement effectué lors de la réception du signal SIGCHLD
@@ -116,14 +117,9 @@ int main(int argc, char const *argv[])
                printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
 
                int i = 0;
-               int tailleTampon;
-               char** tamponString = malloc(sizeof(char*)*5);
                while (i < nbFichiersALire)
                {
-                    while (read(socketService, &tailleTampon, sizeof(int)) == -1);
-                    tamponString[i] = malloc(sizeof(char) * tailleTampon);
-                    while (read(socketService, tamponString[i], sizeof(char) * tailleTampon) == -1);
-                    printf("Valeur lue : %s\n", tamponString[i]);
+                    receptionImageServeur(socketService);
                     i++;
                }
                printf("Enregistrement terminé\n");

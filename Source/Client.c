@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "Affichage.h"
+#include "Envoi.h"
 #include "Reception.h"
 #endif
 /**

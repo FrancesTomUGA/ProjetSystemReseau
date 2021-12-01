@@ -1,5 +1,5 @@
-#ifndef AFFICHAGE_H
-#define AFFICHAGE_H
+#ifndef ENVOI_H
+#define ENVOI_H
 
 
 /**
