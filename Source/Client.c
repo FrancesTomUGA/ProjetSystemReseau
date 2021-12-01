@@ -94,7 +94,7 @@ int main(int argc, char const *argv[])
                envoieFichier(socketCommClient, listeFichier, tabFichiersAEnvoyer);
                break;
           case RECEPTION:
-               receptionFichier();
+               receptionFichier(socketCommClient);
                break;
           }
           clear();
