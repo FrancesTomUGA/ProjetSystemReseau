@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
             for (int i = 0; i < numberOfTypes; i++) 
             {
                 char* typeMime = malloc(sizeof(char) * TAILLE_TYPE);
-                fgets(typeMime, TAILLE_TYPE, types);
+                typeSSSMime[i] = fgets(typeMime, TAILLE_TYPE, types);
                 // printf("%s\n", typeMime);
             }
         }
@@ -50,7 +50,9 @@ int main(int argc, char *argv[])
         for (int i = 0; i < numberOfTypes; i++) 
         {
             char* typeMime = malloc(sizeof(char) * TAILLE_TYPE);
-            typeMime[i] = read(source, &tampon, TAILLE_TYPE); //tampon à vérifier ???
+            typeSSSMime[i] = read(source, &tampon, TAILLE_TYPE); //tampon à vérifier ???
+            // ou peut être 
+            // read(source, &typeSSSMime[i], TAILLE_TYPE); //???
         }
         close (source);
     }
