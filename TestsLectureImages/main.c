@@ -24,13 +24,29 @@ int main(int argc, char const *argv[])
 
     printf("Nom fichier lu : %s\n", fichierLu->d_name);
 
-    char nomFichier[300];
-    strcat(nomFichier, "files/");
-    strcat(nomFichier, fichierLu->d_name);
-    printf("nom fichier : %s\n", nomFichier);
+    char nomFichierLu[300];
+    strcat(nomFichierLu, "files/");
+    strcat(nomFichierLu, fichierLu->d_name);
+    printf("nom fichier lu: %s\n", nomFichierLu);
 
-    int imageLue = open(nomFichier, O_RDONLY);
-    int imageEcrite = open("fille_moche.jpeg", O_WRONLY);
+    char nomFichierTransfert[300];
+    strcat(nomFichierTransfert, "files_transfert/");
+    strcat(nomFichierTransfert, fichierLu->d_name);
+
+    switch (fork())
+    {
+    case -1:
+        exit(-1);
+    case 0:
+        execlp("touch", "touch", nomFichierTransfert, (char *)0);
+    default:
+        wait(NULL);
+    }
+
+    sleep(1);
+
+    int imageLue = open(nomFichierLu, O_RDONLY);
+    int imageEcrite = open(nomFichierTransfert, O_WRONLY);
 
     if (imageLue == -1 || imageEcrite == -1)
     {
