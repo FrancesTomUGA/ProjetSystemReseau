@@ -1,26 +1,33 @@
 #ifndef AFFICHAGE_H
 #define AFFICHAGE_H
+
 //pointeur qui permettra a tout le programme de récuperer la liste des fichiers du dossier
 char** listeFichier;
+
 //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
 char** tabFichiersAEnvoyer;
+
 /**
  * @brief Efface le terminal pour un affichage propre
  * system("clear")  ou  fork()->exec("clear")?
  */
 void clear();
+
 /**
  * @brief Récupération de la liste des fichiers contenus dans le dossier Files
  * Enregistrement des noms de fichier dans le tableau @ listeFichier
+ * @param listeFIchier un tableau de chaines de caractères contenant la liste de tous les fichiers dans le répertoire d'images
  * @return int 
  */
 int recupererListeFichier();
+
 /**
  * @brief L'utilisateur sélectionne les images qu'il veux envoyer au serveur dans la liste afficher
  * L'utilisateur peux sélectionnier plusieurs fichiers qui seront ajouter dans le tableau afin d'etre envoyer par la suite
  * @param socketCommClient 
  */
 void selectionEnvoie(int socketCommClient);
+
 /**
  * @brief Affiche la liste des fichiers présent dans la listeFichier
  * L'utilisateur peut choisir plusieur option :
@@ -29,13 +36,18 @@ void selectionEnvoie(int socketCommClient);
  * 3 - il accede a la page précédente (les 4 fichiers suivants)(si c'est la derniere page ne bouge pas)
  * @param socketCommClient le numéro correspondant au déscripteur de la socket
  * @param nbFichier le nombre de fichier contenu dans la listeFichier
+ * @param listeFIchier un tableau de chaines de caractères contenant la liste de tous les fichiers dans le répertoire d'images
+ * @param tabFichiersAEnvoyer un tableau de chaines de caractères contenant la liste des fichiers à envoyer
  */
 void affichageListeFichier(int socketCommClient,int nbFichier);
+
 /**
  * @brief Appelle toute les méthodes permettant le dialogue avec l'utilisateur concernant l'envoie de fichier vers le serveur
  * 
  * @param socketCommClient Le descripteur de fichier correspant a la socket pour communiquer avec le serveur
+ * @param listeFIchier un tableau de chaines de caractères contenant la liste de tous les fichiers dans le répertoire d'images
+ * @param tabFichiersAEnvoyer un tableau de chaines de caractères contenant la liste des fichiers à envoyer
  */
 void envoieFichier(int socketCommClient);
-#endif
 
+#endif

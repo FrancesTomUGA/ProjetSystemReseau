@@ -80,7 +80,7 @@ void selectionEnvoie(int socketCommClient)
           printf("Envoi fichier(s) %d\n", j);
           int tailleChaine = strlen(tabFichiersAEnvoyer[j]);
           write(socketCommClient, &tailleChaine, sizeof(int));                                                              //On envoi d'abord la taille de la chaine pour plus de simplicité
-          printf("Taille écrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], strlen(tabFichiersAEnvoyer[j]))); //Envoi la chaine au serveur
+          printf("Taille écrite : %ld\n", write(socketCommClient, tabFichiersAEnvoyer[j], sizeof(char)*tailleChaine)); //Envoi la chaine au serveur
      }
      printf("J'ai fini d'envoyer les fichiers\n"); //Envoi terminé
 }
@@ -91,10 +91,11 @@ void affichageListeFichier(int socketCommClient, int nbFichier)
      int action = 0; //Représente le choix fait par l'utilisateur
      while (action != -1)
      {
-          clear();                //Vide le terminal
+          //clear();                //Vide le terminal
           printf("*** Liste des fichiers disponibles pour le dépôt ***\n");
           int debut = (page * 4); //Se place sur le premier fichier de la page
-          for (debut; debut < debut + 3 && debut < nbFichier; debut++)
+          int fin = debut + 4;
+          for (debut; debut < fin && debut < nbFichier; debut++)
           {
                printf("[%d] %s\n", debut + 1, listeFichier[debut]);
           }

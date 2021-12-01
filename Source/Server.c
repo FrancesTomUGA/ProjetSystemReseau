@@ -105,15 +105,15 @@ int main(int argc, char const *argv[])
 
                signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
-               read(socketService, &tampon, sizeof(int));
+               /* read(socketService, &tampon, sizeof(int));
                printf("Valeur lue : %d\n", tampon);
 
                tampon += 3;
-               write(socketService, &tampon, sizeof(int));
+               write(socketService, &tampon, sizeof(int)); */ //Partie de test d'envoi int phase 1
 
                int nbFichiersALire = 0;
                while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
-               //printf("Nb de fichiers à lire : %d\n", nbFichiersALire); ok
+               printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
 
                int i = 0;
                int tailleTampon;
