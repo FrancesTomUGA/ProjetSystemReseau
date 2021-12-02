@@ -73,6 +73,7 @@ int main(int argc, char const *argv[])
           fprintf(stderr, "Erreur hostname\n");
           exit(-1);
      }
+    
      struct sockaddr_in socketServeur;
 
      socketServeur.sin_family = AF_INET;
