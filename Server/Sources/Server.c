@@ -17,8 +17,8 @@
 #include <fcntl.h>
 #define ERREUR_READ 0
 #define RECEVOIR 1
-#define ENVOYER 2
-#define FINCONNEXION -1
+#define ENVOI 2
+#define FIN_CONNEXION -1
 /**
  * @brief Traitement effectué lors de la réception du signal SIGCHLD
  *
@@ -37,7 +37,10 @@ void handler()
  * @return int
  */
 int main(int argc, char const *argv[])
-{
+{    if(argc != 2){
+          fprintf(stderr, "Erreur usage, 1 paramètres\n");
+          exit(-1);
+     }
      // Définition du comportement pour le traitement du signal SIGCHLD
      struct sigaction ac;
      ac.sa_handler = handler;
@@ -60,7 +63,7 @@ int main(int argc, char const *argv[])
      struct sockaddr_in socketClient;
 
      socketClient.sin_family = AF_INET;
-     socketClient.sin_port = htons(6067);
+     socketClient.sin_port = htons(atoi(argv[1]));
      socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
 
      // paramétrage de la socket pour ne plus avoir l'erreur bind(): adress already in use
@@ -140,15 +143,13 @@ int main(int argc, char const *argv[])
                while (read(socketService, &action, sizeof(int)) == -1)
                     ;
 
-               while (action != FINCONNEXION)
+               while (action != FIN_CONNEXION)
                {
                     switch (action)
                     {
                     case RECEVOIR:;
                          int nbFichiersALire = 0;
-                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1)
-                              ;
-                         printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
+                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
 
                          int i = 0;
                          while (i < nbFichiersALire)
@@ -158,33 +159,38 @@ int main(int argc, char const *argv[])
                          }
                          printf("Enregistrement terminé\n");
                          break;
-                    case ENVOYER:;
-                         printf("On va envoyer des fichier au client\n");
+                    case ENVOI:;
+                         printf("Début envoi\n");
 
                          // récupération des images sur le serveur
                          int nbImagesServeur = 0;
                          char **listeImagesServeur = recupereListeImagesServeur(&nbImagesServeur);
                          // envoi du nom des images sur le serveur au client
                          envoiListeImagesServeurClient(socketService, listeImagesServeur, nbImagesServeur);
-
                          // récupération du nom des images que le client veut télécharger
                          int nbImagesATelecharger = 0;
                          char **listeImagesATelecharger = recupereListeImagesATelecharger(socketService, &nbImagesATelecharger);
-                         printf("fin recup liste images a telecharger\n");
 
                          for (int i = 0; i < nbImagesATelecharger; i++)
                          {
                               envoiImage(socketService, listeImagesATelecharger[i]);
                          }
-
+                         int fini = 0;
+                         while(read(socketService,&fini,sizeof(int))==-1);
+                         if (listeImagesServeur != NULL){
+                              free(listeImagesServeur);
+                         }
+                         if (listeImagesATelecharger != NULL){
+                              free(listeImagesATelecharger);
+                         }
                          break;
-                    case FINCONNEXION:
+                    case FIN_CONNEXION:
                          // fermeture de la socket et mort du fils
                          close(socketService);
                          exit(0);
                          break;
                     }
-
+                    printf("Envoi terminé\n");
                     // Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
                     int size_read_action;
                     while ((size_read_action = read(socketService, &action, sizeof(int))) == -1)
@@ -192,8 +198,9 @@ int main(int argc, char const *argv[])
 
                     if (size_read_action == ERREUR_READ)
                     {
-                         action = FINCONNEXION;
+                         action = FIN_CONNEXION;
                     }
+                    printf("action : %d\n", action);
                }
                printf("Fin de la connexion avec le client\n");
                exit(0);
