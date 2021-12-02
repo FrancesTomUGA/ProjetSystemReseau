@@ -1,0 +1,3 @@
+image/png
+image/x-portable-pixmap
+image/jpeg

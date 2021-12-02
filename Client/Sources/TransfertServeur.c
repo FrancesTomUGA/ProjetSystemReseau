@@ -24,13 +24,8 @@ void envoiImage(int socketTransfert, char *nomImage)
      strcat(cheminImageLue, "./FilesClient/");
      strcat(cheminImageLue, nomImage);
 
-     char cheminImageTransfert[306];
-     cheminImageTransfert[0] = '\0';
-     strcat(cheminImageTransfert, "./FilesServeur/");
-     strcat(cheminImageTransfert, nomImage);
-
      //envoi du nom de l'image au serveur
-     write(socketTransfert, cheminImageTransfert, 306);
+     write(socketTransfert, nomImage, strlen(nomImage));
 
      imageLue = open(cheminImageLue, O_RDONLY);
 

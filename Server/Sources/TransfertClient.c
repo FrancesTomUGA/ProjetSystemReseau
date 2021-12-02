@@ -11,6 +11,7 @@
 #include "TransfertClient.h"
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include "Admis.h"
 #endif
 
 void envoiImage(int socketTransfert, char *nomImage)
@@ -63,8 +64,13 @@ void receptionImage(int socketService)
 {
      int imageEcrite;
      //lecture nom image
-     char *cheminImageTransfert = malloc(sizeof(char) * 306);
-     read(socketService, cheminImageTransfert, 306);
+     char *nomImage = malloc(sizeof(char) * 100);
+     nomImage[0]='\0';
+     read(socketService, nomImage, 100);
+     char cheminTmp[strlen(nomImage)+6];
+     cheminTmp[0]='\0';
+     strcat(cheminTmp,"./tmp/");
+     strcat(cheminTmp,nomImage);
      int imageSize;
      read(socketService, &imageSize, sizeof(int));
 
@@ -73,12 +79,12 @@ void receptionImage(int socketService)
      case -1:
           exit(-1);
      case 0:
-          execlp("touch", "touch", cheminImageTransfert, (char *)0);
+          execlp("touch", "touch", cheminTmp, (char *)0);
      default:
           wait(NULL);
      }
 
-     imageEcrite = open(cheminImageTransfert, O_WRONLY);
+     imageEcrite = open(cheminTmp, O_WRONLY);
 
      if (imageEcrite == -1){
           printf("Erreur ouverture image\n");
@@ -96,6 +102,7 @@ void receptionImage(int socketService)
           write(imageEcrite, chaine, redSize);
      }
      int fini = 1;
+     admissible(nomImage);
      write(socketService, &fini, sizeof(int));
      printf("Réception données terminée\n");
 }
