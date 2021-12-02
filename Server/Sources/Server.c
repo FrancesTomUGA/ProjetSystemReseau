@@ -11,6 +11,9 @@
 #include "Transfert.h"
 #include <pthread.h>
 #include <dirent.h>
+#include <sys/time.h>
+#include <fcntl.h>
+#define ERREUR_READ 0
 #define RECEVOIR 1
 #define ENVOYER 2
 #define FINCONNEXION -1
@@ -19,9 +22,13 @@
  * 
  * @param s //Signal
  */
-void handler(int s)
+void handler()
 {
      wait(NULL);
+}
+
+void socket_close(){
+     printf("socket closed timemout\n");
 }
 
 /**
@@ -38,6 +45,7 @@ int main(int argc, char const *argv[])
      ac.sa_handler = handler;
      ac.sa_flags = SA_RESTART;
 
+     sigaction(SIGCHLD, &ac, NULL);
      //Création d'une socket d'écoute
      int socketEcoute = socket(AF_INET, SOCK_STREAM, 0);
      if (socketEcoute == -1)
@@ -53,17 +61,19 @@ int main(int argc, char const *argv[])
      //Attachement de la socket à un port
      struct sockaddr_in socketClient;
 
-     socketClient.sin_family = AF_INET; //Pointeur structure : (->) pour accès aux champs
+     socketClient.sin_family = AF_INET;
      socketClient.sin_port = htons(6067);
      socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
-     /*int sockfd = 0;
-     int yes = 1;
-     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+     
+     //paramétrage de la socket pour ne plus avoir l'erreur bind(): adress already in use 
+     //SO_REUSEADDR permet la réutilisation d'une adresse locale
+     int option_value = 1;
+     if (setsockopt(socketEcoute, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int)) == -1)
      {
-          perror("setsockopt");
+          perror("setsockopt()");
           pthread_exit(NULL);
      }
-     */
+     
      if (bind(socketEcoute, (struct sockaddr *)&socketClient, sizeof(socketClient)) == -1)
      {
           perror("bind()");
@@ -102,6 +112,18 @@ int main(int argc, char const *argv[])
                                                   // penser à en mettre pour flush le buffer et afficher sur la sortie standard
           }
 
+          //timeout socket
+          struct timeval timeout;
+          timeout.tv_sec = 5;
+          timeout.tv_usec = 0;
+          if(setsockopt(socketService, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) == -1){
+               perror("setsockopt()");
+          }
+          if(setsockopt(socketService, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout)) == -1){
+               perror("setsockopt()");
+          }
+
+
           switch (fork())
           {
           case -1:
@@ -117,16 +139,14 @@ int main(int argc, char const *argv[])
                signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
                int action;
-               while (read(socketService, &action, sizeof(int)) == -1)
-                    ;
+               while (read(socketService, &action, sizeof(int)) == -1);
                while (action != FINCONNEXION)
                {
                     switch (action)
                     {
                     case RECEVOIR:;
                          int nbFichiersALire = 0;
-                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1)
-                              ;
+                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
                          printf("Nb de fichiers à lire : %d\n", nbFichiersALire);
 
                          int i = 0;
@@ -200,10 +220,20 @@ int main(int argc, char const *argv[])
                          }
                          break;
                     case FINCONNEXION:
+                         //fermeture de la socket et mort du fils
+                         close(socketService);
+                         exit(0);
                          break;
                     }
-                    while (read(socketService, &action, sizeof(int)) == -1)
-                         ;
+                    
+                    //Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
+                    int size_read_action;
+                    while ((size_read_action = read(socketService, &action, sizeof(int))) == -1);
+
+                    if(size_read_action == ERREUR_READ){
+                         action = FINCONNEXION;
+                    }
+                    
                }
                printf("Fin de la connexion avec le client\n");
                exit(0);

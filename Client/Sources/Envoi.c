@@ -12,106 +12,80 @@
 #include <unistd.h>
 #endif
 
-void clear()
-{
+void clear(){
      system("clear");
 }
 
-char **recupererListeFichier(char **laListeDesFichiers, int *nbFichier)
-{
+char **recupererListeFichier(char **listeImagesClient, int *nbFichier){
      struct dirent *lecture;
      DIR *rep; //Permet de stocker les informations du répertoire
 
      rep = opendir("./FilesClient");
-     if (rep == NULL)
-     {
-          printf("erreur ouverture rep\n");
+     if (rep == NULL){
+          printf("erreur ouverture repo client\n");
           exit(-1);
      }
+
+     listeImagesClient = (char **) malloc(0);
      while ((lecture = readdir(rep))) //Pour chaque fichier trouvé
      {
           //Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
-          if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
-          {
+          if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.'){
+               listeImagesClient = (char **) realloc(listeImagesClient, sizeof(char*) * (*nbFichier + 1) );
+               listeImagesClient[*nbFichier] = malloc(sizeof(char) * strlen(lecture->d_name));
+               listeImagesClient[*nbFichier] = lecture->d_name;
                *nbFichier += 1;
           }
      }
-     //Allocation de l'espace mémoire dont on aura besoin pour stocker les chemins par la suite
-     laListeDesFichiers = (char **)malloc(sizeof(char *) * (*nbFichier));
-
-     //Boucle identique mais cette fois on enregistre les chemins de fichiers puisque l'on a désormais la place pour le faire
-     *nbFichier = 0;
-     rep = opendir("./FilesClient");
-     while ((lecture = readdir(rep)))
-     {
-          if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
-          {
-               laListeDesFichiers[*nbFichier] = malloc(sizeof(char) * strlen(lecture->d_name));
-               //printf("dname = : %s\n",lecture->d_name);
-               laListeDesFichiers[*nbFichier] = lecture->d_name;
-               //printf("resultat = : %s\n",laListeDesFichiers[nbFichier]);
-               *nbFichier = *nbFichier + 1;
-          }
-     }
      closedir(rep);
-
-     /*printf("Liste des fichiers : \n");
-     for (int j = 0; j < nbFichier; j++)
-     {
-          printf("%d : %s\n", j + 1, listeFichier[j]);
-     }*/
-
-     return laListeDesFichiers; //Renvoie le nombre de fichier;
+     return listeImagesClient; //Renvoie la liste des fichiers;
 }
 
-void selectionEnvoie(int socketCommClient, char **laListeDesFichiers, char **tabFichiersEnvoi)
+void selectionImagesEnvoi(int socketCommClient, char **listeImagesClient, char **listeImagesAEnvoyer)
 {
-     tabFichiersEnvoi = (char **)malloc(sizeof(char *) * 4);
+     listeImagesAEnvoyer = (char **) malloc(0);
      int numFichier = 0; //Numéro du fichier selectionné
-     int i = 0;          //Nombre de fichiers à envoyer
+     int nbFichier = 0;          //Nombre de fichiers à envoyer
 
      printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
      scanf("%d", &numFichier);
-     while (i < 4 && numFichier != -1)
+     while (numFichier != -1)
      {
-          tabFichiersEnvoi[i] = malloc(sizeof(char) * strlen(laListeDesFichiers[numFichier - 1])); //Allocation mémoire pour la nouvelle chaîne
-          strcpy(tabFichiersEnvoi[i], laListeDesFichiers[numFichier - 1]);                         //On stocke le texte correspondant au numéro du fichier choisi
-          i++;
+          nbFichier++;
+          listeImagesAEnvoyer = (char **) realloc(listeImagesAEnvoyer, sizeof(char*) * nbFichier);
+          listeImagesAEnvoyer[nbFichier-1] = malloc(sizeof(char) * strlen(listeImagesClient[numFichier - 1])); //Allocation mémoire pour la nouvelle chaîne
+          strcpy(listeImagesAEnvoyer[nbFichier-1], listeImagesClient[numFichier - 1]);                         //On stocke le texte correspondant au numéro du fichier choisi
           printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
           scanf("%d", &numFichier);
      }
 
-     write(socketCommClient, &i, sizeof(int)); //Envoi au serveur le nombre de fichiers qu'il va recevoir
+     if(nbFichier > 0){ 
+          write(socketCommClient, &nbFichier, sizeof(int)); //Envoi au serveur le nombre de fichiers qu'il va recevoir
 
-     for (int j = 0; j < i; j++)
-     {
+          for (int j = 0; j < nbFichier; j++){
+               envoiImageClientServeur(listeImagesAEnvoyer[j], socketCommClient);
+          }
 
-          envoiImageClientServeur(tabFichiersEnvoi[j], socketCommClient);
-
-          /*
-          printf("Envoi fichier(s) %d\n", j);
-          int tailleChaine = strlen(tabFichiersEnvoi[j]);
-          write(socketCommClient, &tailleChaine, sizeof(int));                                                        //On envoi d'abord la taille de la chaine pour plus de simplicité
-          printf("Taille écrite : %ld\n", write(socketCommClient, tabFichiersEnvoi[j], sizeof(char) * tailleChaine)); //Envoi la chaine au serveur
-          */
+          printf("Envoi des fichiers terminé\n"); //Envoi terminé    
+     }else{
+          printf("Vous n'avez pas selectionne d'image\n");
      }
-
-     printf("J'ai fini d'envoyer les fichiers\n"); //Envoi terminé
+     
 }
 
-void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDesFichiers, char **tabFichiersEnvoi)
+void affichageListeFichier(int socketCommClient, int nbFichier, char **listeImagesClient, char **listeImagesAEnvoyer)
 {
      int page = 0;   //Page courante
      int action = 0; //Représente le choix fait par l'utilisateur
      while (action != -1)
      {
-          //clear();                //Vide le terminal
+          clear();                //Vide le terminal
           printf("*** Liste des fichiers disponibles pour le dépôt ***\n");
           int debut = (page * 4); //Se place sur le premier fichier de la page
           int fin = debut + 4;
           while(debut < fin && debut < nbFichier)
           {
-               printf("[%d] %s\n", debut + 1, laListeDesFichiers[debut]);
+               printf("[%d] %s\n", debut + 1, listeImagesClient[debut]);
                debut++;
           }
           printf("\n(1) Page précédente\n(2) Choisir des fichiers à déposer\n(3) Page suivante\n(-1) Retour au menu principal\n");
@@ -119,25 +93,19 @@ void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDe
           switch (action)
           {
           case 1:
-               if (page != 0)
-               {
+               if (page != 0){
                     page--;
                }
                break;
           case 2: ;
                int code = ENVOI;
                write(socketCommClient, &code, sizeof(int));
-               selectionEnvoie(socketCommClient, laListeDesFichiers, tabFichiersEnvoi);
-
+               selectionImagesEnvoi(socketCommClient, listeImagesClient, listeImagesAEnvoyer);
                break;
           case 3:
-               if (page != (nbFichier / 4))
-               {
+               if (page != (nbFichier / 4)){
                     page++;
-                    //page = (nbFichier / 4) - 1;
                }
-               //debut++;
-
                break;
           default:
                break;
@@ -145,20 +113,18 @@ void affichageListeFichier(int socketCommClient, int nbFichier, char **laListeDe
      }
 }
 
-void envoieFichier(int socketCommClient, char **laListeDesFichiers, char **tabFichiersEnvoi)
+void envoieFichier(int socketCommClient, char **listeImagesClient, char **listeImagesAEnvoyer)
 {
      int nbFichier = 0;
-     laListeDesFichiers = recupererListeFichier(laListeDesFichiers, &nbFichier);
+     listeImagesClient = recupererListeFichier(listeImagesClient, &nbFichier);
 
-     affichageListeFichier(socketCommClient, nbFichier, laListeDesFichiers, tabFichiersEnvoi);
+     affichageListeFichier(socketCommClient, nbFichier, listeImagesClient, listeImagesAEnvoyer);
 
-     if (laListeDesFichiers == NULL)
-     {
-          free(laListeDesFichiers);
+     if (listeImagesClient == NULL){
+          free(listeImagesClient);
      }
-     if (tabFichiersEnvoi == NULL)
-     {
-          free(tabFichiersEnvoi);
+     if (listeImagesAEnvoyer == NULL){
+          free(listeImagesAEnvoyer);
      }
-     printf("Vous-avez choisi d'envoyer des fichiers\n");
+     printf("Vous avez choisi d'envoyer des fichiers\n");
 }

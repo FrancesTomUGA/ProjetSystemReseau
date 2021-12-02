@@ -17,29 +17,23 @@ void envoiImageClientServeur(char *nomImage, int socketTransfert)
 {
      int imageLue;
 
-     printf("nom image recu1 : %s\n", nomImage);
      char cheminImageLue[306];
      cheminImageLue[0] = '\0';
 
-     printf("nom image recu2 : %s\n", cheminImageLue);
      strcat(cheminImageLue, "./FilesClient/");
-     printf("nom image recu3 : %s\n", cheminImageLue);
      strcat(cheminImageLue, nomImage);
-     printf("chemin image lue: %s\n", cheminImageLue);
 
      char cheminImageTransfert[306];
      cheminImageTransfert[0] = '\0';
      strcat(cheminImageTransfert, "./FilesServeur/");
      strcat(cheminImageTransfert, nomImage);
-     printf("chemin image transfert: %s\n", cheminImageTransfert);
 
      //envoi du nom de l'image au serveur
      write(socketTransfert, cheminImageTransfert, 306);
 
      imageLue = open(cheminImageLue, O_RDONLY);
 
-     if (imageLue == -1)
-     {
+     if (imageLue == -1){
           printf("Erreur ouverture image\n");
           exit(-1);
      }
@@ -47,30 +41,21 @@ void envoiImageClientServeur(char *nomImage, int socketTransfert)
      int imageSize = 0;
      //récupère la taille de l'image
      struct stat st;
-     if (stat(cheminImageLue, &st) == 0)
-     {
+     if (stat(cheminImageLue, &st) == 0){
           imageSize = st.st_size;
      }
-     else
-     {
-          printf("taille introuvable\n");
-     }
+     
      write(socketTransfert, &imageSize, sizeof(int));
      //envoi de l'image au serveur
-     char chaine[512];
-     int nbPaquet = 0;
+     char chaine[4096];
      int size = 0;
-     while ((size = read(imageLue, chaine, 512)) > 0)
+     while ((size = read(imageLue, chaine, sizeof(chaine))) > 0)
      {
-          //printf("envoie données image %s\n", nomImage);
           write(socketTransfert, chaine, size);
           chaine[0] = '\0';
-          nbPaquet++;
      }
      int sortie;
-     while (read(socketTransfert, &sortie, sizeof(int)) == -1)
-          ;
-     printf("j'ai envoyer %d paquet\n", nbPaquet);
+     while (read(socketTransfert, &sortie, sizeof(int)) == -1);
      printf("Lecture image et transmission terminées\n");
 }
 
@@ -80,13 +65,11 @@ void receptionImageServeur(int socketService)
      //lecture nom image
      char *cheminImageTransfert = malloc(sizeof(char) * 306);
      read(socketService, cheminImageTransfert, 306);
-     printf("j'ai recu ca : %s\n", cheminImageTransfert);
      int imageSize;
      read(socketService, &imageSize, sizeof(int));
 
      //creation de l'image
-     switch (fork())
-     {
+     switch (fork()){
      case -1:
           exit(-1);
      case 0:
@@ -97,24 +80,21 @@ void receptionImageServeur(int socketService)
 
      imageEcrite = open(cheminImageTransfert, O_WRONLY);
 
-     if (imageEcrite == -1)
-     {
+     if (imageEcrite == -1){
           printf("Erreur ouverture image\n");
           exit(-1);
      }
 
      //lecture des données de l'image
-     char chaine[512];
+     char chaine[4096];
      int redSizeTotal = 0;
      int redSize = 0;
      while (redSizeTotal < imageSize)
      {
 
-          redSize = read(socketService, chaine, 512);
+          redSize = read(socketService, chaine, sizeof(chaine));
           redSizeTotal += redSize;
-          printf("réception données image %s\n", cheminImageTransfert);
           write(imageEcrite, chaine, redSize);
-          printf("taille lu : %d et taille de l'image : %d\n", redSizeTotal, imageSize);
      }
      int fini = 1;
      write(socketService, &fini, sizeof(int));

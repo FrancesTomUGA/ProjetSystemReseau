@@ -26,13 +26,8 @@ int choixAction()
      int choix;
      printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
      scanf("%d", &choix);
-     if (choix != ENVOI && choix != RECEPTION && choix != ARRET)
-     {
-          choix = 3;
-          if (choix == 3)
-          {
-               choix = -1;
-          }
+     if (choix != ENVOI && choix != RECEPTION && choix != ARRET){
+          choix = -1;
      }
      return choix;
 }
@@ -50,15 +45,11 @@ int main(int argc, char const *argv[])
 
      //Création d'une socket communication client
      int socketCommClient = socket(AF_INET, SOCK_STREAM, 0);
-     if (socketCommClient == -1)
-     {
-          // fprintf(stderr, "Erreur dans la creation de la socket");
+     if (socketCommClient == -1){
           perror("socket()");
           exit(-1);
-     }
-     else
-     {
-          printf("Tout va bien création socket\n");
+     }else{
+          printf("Création socket\n");
      }
 
      //Récupère les informations du serveur grâce au nom de la machine
@@ -72,14 +63,12 @@ int main(int argc, char const *argv[])
      printf("Adresse serveur : %s\n", inet_ntoa(socketServeur.sin_addr));
 
      //Connection du client au serveur
-     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1)
-     {
+     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1){
           perror("connect()");
-     }
-     else
-     {
+     }else{
           printf("Connection établie\n");
      }
+
      //pointeur qui permettra a tout le programme de récuperer la liste des fichiers du dossier
      char **listeFichier;
      //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
@@ -88,17 +77,20 @@ int main(int argc, char const *argv[])
      while ((action = choixAction()) != ARRET) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
-          switch (action)
-          {
+          switch (action){
           case ENVOI:
                envoieFichier(socketCommClient, listeFichier, tabFichiersAEnvoyer);
                break;
           case RECEPTION:
                receptionFichier(socketCommClient);
                break;
+          case ARRET:
+          default:
+               break;
           }
           clear();
      }
+     
      int sortie = SORTIE;
      write(socketCommClient, &sortie, sizeof(int));
      printf("Fin du programme\n");

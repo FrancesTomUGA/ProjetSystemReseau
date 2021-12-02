@@ -24,7 +24,7 @@ char** recupererListeFichier(char** listeFichier,int *nbFichier);
  * @param listeFichier
  * @param tabFichiersAEnvoyer
  */
-void selectionEnvoie(int socketCommClient,char** listeFichier,char** tabFichiersAEnvoyer);
+void selectionImagesEnvoi(int socketCommClient,char** listeFichier,char** tabFichiersAEnvoyer);
 
 /**
  * @brief Affiche la liste des fichiers présent dans la listeFichier
