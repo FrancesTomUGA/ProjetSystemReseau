@@ -51,6 +51,7 @@ char** listeMymes(int* nbTypes)
      }
      return typeSSSMime;
 }
+
 int admissible(char *nomImage)
 {
      int numberOfTypes = 0;
@@ -59,7 +60,7 @@ int admissible(char *nomImage)
      int bool = 0;
      char cheminImage[strlen(nomImage)+6];
      cheminImage[0]='\0';
-     strcat(cheminImage,"./tmp/");
+     strcat(cheminImage,"./tmp/");	//tmp est le fichier de stockage temporel
      strcat(cheminImage,nomImage);
      // commande à être exécutée par le processus fils
      // pour récupérer le type mime du fichier
@@ -115,11 +116,30 @@ int admissible(char *nomImage)
                     if (strcmp(recup, typeSSSMime[j]) == 0)
                     {
                          bool = 1;
-                         printf("type admissible\n bool = %d\n", bool);
+                         printf("Le fichier est admissible (type MIME admissible), il a été placé dans le répertoire FilesServeur\nbool = %d\n", bool);
+                         switch(fork()){
+                              case -1:
+                                   exit(-1);
+                              case 0:
+                                   char cheminFinal[15];
+                                   cheminFinal[0]='\0';
+                                   strcat(cheminFinal, "./FilesServeur/");
+                                   execlp("mv", "mv", cheminImage, cheminFinal, (char *)0);
+                              default:
+                                   wait(NULL);
+                         }
                     }
                     else
                     {
-                         printf("pas le bon type\n bool = %d\n", bool);
+                         printf("Le fichier N'est PAS admissible (type MIME inadmissible), il n'a pu être transféré (ou plutôt, il a été placé dans le répertoire temporaire, mais il a été supprimé après vérification)\n bool = %d\n", bool);
+                         switch(fork()){
+                              case -1:
+                                   exit(-1);
+                              case 0:
+                                   execlp("rm", "rm", cheminImage, (char *)0);
+                              default:
+                                   wait(NULL);
+                         }
                     }
                     j++;
                }
@@ -129,4 +149,5 @@ int admissible(char *nomImage)
                     ;
           }
      }
+     return bool;
 }
