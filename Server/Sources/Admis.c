@@ -2,18 +2,19 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <string.h>
-#include "Admis.h"
-#define TAILLE_TYPE 30 // Taille du char* type mime = 30
 
-char** listeMymes(int* nbTypes)
+#define TAILLE_TYPE 50 // Taille du char* type mime = 50
+char **recupereListeTypeMime(int *nbType)
 {
-     char** typeSSSMime = (char **)malloc(0);
-     *nbTypes = 0;
+     *nbType = 0;                             // on considère pour le moment qu'il n'y a pas plus de 3 types mime dans le fichier txt
+     char **typeSSSMime = (char **)malloc(0); // Tableau de types mime
+     char typeMime[TAILLE_TYPE];
      /* Récupération des types mime (ici, typeMime) dans un tableau (ici, typeSSSMime) (en haut niveau) 
-        (pour le bas niveau, voir la partie commentée ci-dessous) */
+     (pour le bas niveau, voir la partie commentée ci-dessous) */
 
      /*
      Le fichier MimeTypes.txt ici est dans le même répertoire que le fichier Admis.c 
@@ -21,21 +22,24 @@ char** listeMymes(int* nbTypes)
 
      FILE *types = NULL;
      types = fopen("./MimeTypes.txt", "r");
-     int i = 0;
 
      if (types != NULL)
      {
-          printf("inside\n");
+
           while (!feof(types))
           {
-               printf("i = %d\n", i);
-               typeSSSMime = (char **)realloc(typeSSSMime, sizeof(char *) * (*nbTypes + 1));
+               typeMime[0] = '\0';
+               fgets(typeMime, TAILLE_TYPE, types);
 
-               char *typeMime = malloc(sizeof(char) * TAILLE_TYPE);
-               typeSSSMime[*nbTypes] = malloc(sizeof(char) * TAILLE_TYPE);
-               typeSSSMime[*nbTypes] = fgets(typeMime, TAILLE_TYPE, types);
-               typeSSSMime[*nbTypes][strlen(typeSSSMime[*nbTypes]) - 1] = '\0';
-               *nbTypes += 1;
+               if (typeMime[strlen(typeMime) - 1] == '\n')
+               {
+                    typeMime[strlen(typeMime) - 1] = '\0';
+               }
+
+               typeSSSMime = (char **)realloc(typeSSSMime, sizeof(char *) * (*nbType + 1));
+               typeSSSMime[*nbType] = malloc(sizeof(char) * strlen(typeMime));
+               strcpy(typeSSSMime[*nbType], typeMime);
+               *nbType += 1;
           }
           fclose(types);
      }
@@ -43,32 +47,21 @@ char** listeMymes(int* nbTypes)
      {
           printf("Lecture du fichier des Types Mime impossible.\n");
      }
-
-     //affichage tableau
-     for (int i = 0; i < 3; i++)
-     {
-          printf("type : %s\n", typeSSSMime[i]);
-     }
      return typeSSSMime;
 }
-
 int admissible(char *nomImage)
 {
-     int numberOfTypes = 0;
-     char **typeSSSMime = listeMymes(&numberOfTypes);      // on considère pour le moment qu'il n'y a pas plus de 3 types mime dans le fichier txt
-
+     int nbType = 0;
+     char **listeTypeMime = recupereListeTypeMime(&nbType);
      int bool = 0;
-     char cheminImage[strlen(nomImage)+6];
-     cheminImage[0]='\0';
-     strcat(cheminImage,"./tmp/");	//tmp est le fichier de stockage temporel
-     strcat(cheminImage,nomImage);
-     // commande à être exécutée par le processus fils
-     // pour récupérer le type mime du fichier
-     char *cmd[4] = {"file", "--mime-type", cheminImage, (char *)0};
+     char cheminImageTmp[306];
+     char cheminImageFinal[306];
+     sprintf(cheminImageTmp, "./tmp/%s", nomImage);
+     sprintf(cheminImageFinal, "./FilesServeur/%s", nomImage);
 
      int f[2];
      pipe(f);
-
+     printf("debut du test d'admissibilité\n");
      switch (fork())
      {
      case -1:
@@ -78,10 +71,12 @@ int admissible(char *nomImage)
           //comportement du fils // Vérification d'admissibilité du fichier
           close(1); //redirection de la sortie standard
           dup(f[1]);
+          close(f[0]); //fermeture du descripteur inutilisé
           close(f[1]);
-          close(f[0]); //fermeture des descripteurs inutilisés
-          execvp("file", cmd);
-
+          // commande à être exécutée par le processus fils
+          // pour récupérer le type mime du fichier
+          execlp("file", "file", "--mime-type", cheminImageTmp, (char *)0);
+          //la sortie de "file" (a.k.a. le type mime du fichier) ira dans le pipe
      default:
           switch (fork())
           {
@@ -97,51 +92,46 @@ int admissible(char *nomImage)
 
                char *recup = strrchr(typeFichierRecup, ' '); // Récupération du type en récupérant tout se qui est situé après la dernière occurence du caractère 'espace'
 
+               char *delim = strtok(typeFichierRecup, "\n");
+               char *tablOutput[2];
+               int i = 0;
+               while (delim != NULL)
+               {
+                    tablOutput[i++] = delim;
+                    delim = strtok(NULL, " ");
+               }
+
+               printf("recup : %s\n", recup);
+               printf("tableoutput : %s\n", tablOutput[0]);
                int l;
 
                for (l = 1; l < strlen(recup); l++)
                {
                     recup[l - 1] = recup[l]; // Suppression de l'espace en début de la chaîne de caractères
                }
-               //On retire le caractère \n à la fin de la chaine
-               recup[l - 2] = '\0';
+               recup[l - 1] = '\0';
                printf("type lu : %s\n", recup);
 
                int j = 0;
-               while (j < numberOfTypes && bool == 0)
+               while (j < nbType && bool == 0)
                {
                     /* vérification de l'existance de ce type dans le tableau parcouru 
-                    *des types mime admissibles 
-                    */
-                    if (strcmp(recup, typeSSSMime[j]) == 0)
+                    des types mime admissibles */
+                    if (strcmp(recup, listeTypeMime[j]) == 0)
                     {
+                         printf("type admissible\n bool = %d\n", bool);
                          bool = 1;
-                         printf("Le fichier est admissible (type MIME admissible), il a été placé dans le répertoire FilesServeur\nbool = %d\n", bool);
-                         switch(fork()){
-                              case -1:
-                                   exit(-1);
-                              case 0:
-                                   char cheminFinal[15];
-                                   cheminFinal[0]='\0';
-                                   strcat(cheminFinal, "./FilesServeur/");
-                                   execlp("mv", "mv", cheminImage, cheminFinal, (char *)0);
-                              default:
-                                   wait(NULL);
-                         }
-                    }
-                    else
-                    {
-                         printf("Le fichier N'est PAS admissible (type MIME inadmissible), il n'a pu être transféré (ou plutôt, il a été placé dans le répertoire temporaire, mais il a été supprimé après vérification)\n bool = %d\n", bool);
-                         switch(fork()){
-                              case -1:
-                                   exit(-1);
-                              case 0:
-                                   execlp("rm", "rm", cheminImage, (char *)0);
-                              default:
-                                   wait(NULL);
-                         }
                     }
                     j++;
+               }
+               if (bool) {
+                    printf("Fichier déplacé dans FilesServeur\n");
+                    rename(cheminImageTmp, cheminImageFinal);
+               } else {
+                    printf("pas le bon type\n bool = %d\n", bool);
+                    if (unlink(cheminImageTmp) == 0) {
+                         printf("Fichier supprimer dans tmp\n");
+                    }
                }
                exit(0);
           default:
@@ -149,5 +139,8 @@ int admissible(char *nomImage)
                     ;
           }
      }
-     return bool;
+     if (listeTypeMime != NULL)
+     {
+          free(listeTypeMime);
+     }
 }

@@ -11,6 +11,7 @@
 #include "TransfertClient.h"
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <strings.h>
 #include "Admis.h"
 #endif
 
@@ -34,7 +35,8 @@ void envoiImage(int socketTransfert, char *nomImage)
 
      imageLue = open(cheminImageLue, O_RDONLY);
 
-     if (imageLue == -1){
+     if (imageLue == -1)
+     {
           printf("Erreur ouverture image\n");
           exit(-1);
      }
@@ -42,10 +44,11 @@ void envoiImage(int socketTransfert, char *nomImage)
      int imageSize = 0;
      //récupère la taille de l'image
      struct stat st;
-     if (stat(cheminImageLue, &st) == 0){
+     if (stat(cheminImageLue, &st) == 0)
+     {
           imageSize = st.st_size;
      }
-     
+
      write(socketTransfert, &imageSize, sizeof(int));
      //envoi de l'image au serveur
      char chaine[4096];
@@ -64,29 +67,30 @@ void receptionImage(int socketService)
 {
      int imageEcrite;
      //lecture nom image
-     char *nomImage = malloc(sizeof(char) * 100);
-     nomImage[0]='\0';
-     read(socketService, nomImage, 100);
-     char cheminTmp[strlen(nomImage)+6];
-     cheminTmp[0]='\0';
-     strcat(cheminTmp,"./tmp/");
-     strcat(cheminTmp,nomImage);
+     char *nomImage = malloc(sizeof(char) * 306);
+     read(socketService, nomImage, 306);
+     printf("recu : %s\n",nomImage);
      int imageSize;
      read(socketService, &imageSize, sizeof(int));
+     char cheminFichierTmp[306];
+     sprintf(cheminFichierTmp,"./tmp/%s", nomImage);
+     printf("Chemin tmp : %s\n",cheminFichierTmp);
 
      //creation de l'image
-     switch (fork()){
+     switch (fork())
+     {
      case -1:
           exit(-1);
      case 0:
-          execlp("touch", "touch", cheminTmp, (char *)0);
+          execlp("touch", "touch", cheminFichierTmp, (char *)0);
      default:
           wait(NULL);
      }
 
-     imageEcrite = open(cheminTmp, O_WRONLY);
+     imageEcrite = open(cheminFichierTmp, O_WRONLY);
 
-     if (imageEcrite == -1){
+     if (imageEcrite == -1)
+     {
           printf("Erreur ouverture image\n");
           exit(-1);
      }
@@ -105,4 +109,7 @@ void receptionImage(int socketService)
      admissible(nomImage);
      write(socketService, &fini, sizeof(int));
      printf("Réception données terminée\n");
+     if(nomImage != NULL){
+          free(nomImage);
+     }
 }

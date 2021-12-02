@@ -1,2 +1,2 @@
-char** listeMymes(int* nbTypes);
-int admissible(char *nomFichier);
+int admissible(char* nomImage);
+char **recupereListeTypeMime(int *nbType);

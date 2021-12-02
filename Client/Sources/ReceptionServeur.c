@@ -48,6 +48,7 @@ void telechargeImages(int socketCommClient, char **listeImagesATelecharger, int 
 
 void telechargementServeur(int socketCommClient)
 {
+     int nbImagesATelecharger = 0;
      int code = 2;
      write(socketCommClient, &code, sizeof(int));
      int nbImagesServeur = 0;
@@ -77,7 +78,7 @@ void telechargementServeur(int socketCommClient)
                }
                break;
           case 2:;
-               int nbImagesATelecharger = 0;
+
                listeImagesATelecharger = choixImagesATelecharger(listeImagesServeur, nbImagesServeur, &nbImagesATelecharger);
                envoiListeImagesATelecharger(socketCommClient, listeImagesATelecharger, nbImagesATelecharger);
                for (int i = 0; i < nbImagesATelecharger; i++)
@@ -103,10 +104,16 @@ void telechargementServeur(int socketCommClient)
      }
      if (listeImagesServeur != NULL)
      {
+          for (int i = 0; i < nbImagesServeur; i++){
+               free(listeImagesServeur[i]);
+          }
           free(listeImagesServeur);
      }
      if (listeImagesATelecharger != NULL)
      {
+          for(int i = 0; i < nbImagesATelecharger; i++){
+               free(listeImagesATelecharger[i]);
+          }
           free(listeImagesATelecharger);
      }
      printf("Vous-avez choisi de récuperer des fichiers\n");
