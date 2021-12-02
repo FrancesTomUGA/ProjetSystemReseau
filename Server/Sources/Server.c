@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include "TransfertClient.h"
 #include "EnvoiClient.h"
+#include "ReceptionClient.h"
 #include <pthread.h>
 #include <dirent.h>
 #include <sys/time.h>
@@ -20,7 +21,7 @@
 #define FINCONNEXION -1
 /**
  * @brief Traitement effectué lors de la réception du signal SIGCHLD
- * 
+ *
  * @param s //Signal
  */
 void handler()
@@ -30,20 +31,20 @@ void handler()
 
 /**
  * @brief Fonction main du programme
- * 
- * @param argc 
- * @param argv 
- * @return int 
+ *
+ * @param argc
+ * @param argv
+ * @return int
  */
 int main(int argc, char const *argv[])
 {
-     //Définition du comportement pour le traitement du signal SIGCHLD
+     // Définition du comportement pour le traitement du signal SIGCHLD
      struct sigaction ac;
      ac.sa_handler = handler;
      ac.sa_flags = SA_RESTART;
 
      sigaction(SIGCHLD, &ac, NULL);
-     //Création d'une socket d'écoute
+     // Création d'une socket d'écoute
      int socketEcoute = socket(AF_INET, SOCK_STREAM, 0);
      if (socketEcoute == -1)
      {
@@ -55,16 +56,16 @@ int main(int argc, char const *argv[])
           printf("Tout va bien création socket\n");
      }
 
-     //Attachement de la socket à un port
+     // Attachement de la socket à un port
      struct sockaddr_in socketClient;
 
      socketClient.sin_family = AF_INET;
      socketClient.sin_port = htons(6067);
      socketClient.sin_addr.s_addr = htonl(INADDR_ANY);
 
-     //paramétrage de la socket pour ne plus avoir l'erreur bind(): adress already in use
-     //SO_REUSEADDR permet la réutilisation d'une adresse locale
-     //A verifier sur les machines de la fac
+     // paramétrage de la socket pour ne plus avoir l'erreur bind(): adress already in use
+     // SO_REUSEADDR permet la réutilisation d'une adresse locale
+     // A verifier sur les machines de la fac
      int option_value = 1;
      if (setsockopt(socketEcoute, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int)) == -1)
      {
@@ -82,8 +83,8 @@ int main(int argc, char const *argv[])
           printf("Bind socket\n");
      }
 
-     //Ouverture du service
-     //Maximum 5 connexions en attente
+     // Ouverture du service
+     // Maximum 5 connexions en attente
      if (listen(socketEcoute, 5) == -1)
      {
           perror("listen()");
@@ -94,7 +95,7 @@ int main(int argc, char const *argv[])
           printf("Listen socket\n");
      }
 
-     //Acceptation de la connection
+     // Acceptation de la connection
      int len = sizeof(socketClient);
      while (1)
      {
@@ -110,7 +111,7 @@ int main(int argc, char const *argv[])
                                                   // penser à en mettre pour flush le buffer et afficher sur la sortie standard
           }
 
-          //timeout socket
+          // timeout socket
           struct timeval timeout;
           timeout.tv_sec = 5;
           timeout.tv_usec = 0;
@@ -126,14 +127,14 @@ int main(int argc, char const *argv[])
           switch (fork())
           {
           case -1:
-               //Erreur
+               // Erreur
                perror("fork()");
                exit(-1);
           case 0:
-               //Comportement du fils
-               close(socketEcoute); //Fermeture de la socket d'ecoute du pere
+               // Comportement du fils
+               close(socketEcoute); // Fermeture de la socket d'ecoute du pere
 
-               signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
+               signal(SIGCHLD, SIG_DFL); // Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
                int action;
                while (read(socketService, &action, sizeof(int)) == -1)
@@ -160,42 +161,31 @@ int main(int argc, char const *argv[])
                     case ENVOYER:;
                          printf("On va envoyer des fichier au client\n");
 
+                         // récupération des images sur le serveur
                          int nbImagesServeur = 0;
                          char **listeImagesServeur = recupereListeImagesServeur(&nbImagesServeur);
-                         write(socketService, &nbImagesServeur, sizeof(int));
-                         printf("nb images : %d\n", nbImagesServeur);
-                         for (int i = 0; i < nbImagesServeur; i++)
+                         // envoi du nom des images sur le serveur au client
+                         envoiListeImagesServeurClient(socketService, listeImagesServeur, nbImagesServeur);
+
+                         // récupération du nom des images que le client veut télécharger
+                         int nbImagesATelecharger = 0;
+                         char **listeImagesATelecharger = recupereListeImagesATelecharger(socketService, &nbImagesATelecharger);
+                         printf("fin recup liste images a telecharger\n");
+
+                         for (int i = 0; i < nbImagesATelecharger; i++)
                          {
-                              int length = strlen(listeImagesServeur[i]);
-                              write(socketService, &length, sizeof(int));
-                              write(socketService, listeImagesServeur[i], strlen(listeImagesServeur[i]));
-                         }
-                         int nbFichier = 0;
-                         while (read(socketService, &nbFichier, sizeof(int)) == -1);
-                         printf("après recption images à dl, nbfichier = %d\n", nbFichier);
-                         char **listeImagesATelecharger = malloc(sizeof(char *) * nbFichier);
-                         int tailleChaine = 0;
-                         for (int i = 0; i < nbFichier; i++)
-                         {
-                              while (read(socketService, &tailleChaine, sizeof(int)) == -1);
-                              printf("taille chaine recu : %d\n", tailleChaine);
-                              listeImagesATelecharger[i] = malloc(sizeof(char) * tailleChaine + 1);
-                              read(socketService, listeImagesATelecharger[i], tailleChaine);
-                              listeImagesATelecharger[i][tailleChaine] = '\0';
-                         }
-                         for(int i = 0; i < nbFichier; i++){
                               envoiImage(socketService, listeImagesATelecharger[i]);
                          }
 
                          break;
                     case FINCONNEXION:
-                         //fermeture de la socket et mort du fils
+                         // fermeture de la socket et mort du fils
                          close(socketService);
                          exit(0);
                          break;
                     }
 
-                    //Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
+                    // Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
                     int size_read_action;
                     while ((size_read_action = read(socketService, &action, sizeof(int))) == -1)
                          ;
@@ -209,7 +199,7 @@ int main(int argc, char const *argv[])
                exit(0);
                break;
           default:
-               //Comportement du père
+               // Comportement du père
                break;
           }
      }

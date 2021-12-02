@@ -20,18 +20,19 @@ void clear()
 char **recupereListeImagesServeur(int *nbFichier)
 {
     struct dirent *lecture;
-    DIR *rep; //Permet de stocker les informations du répertoire
+    DIR *rep; // Permet de stocker les informations du répertoire
 
     rep = opendir("./FilesServeur");
-    if (rep == NULL){
+    if (rep == NULL)
+    {
         printf("erreur ouverture repo serveur\n");
         exit(-1);
     }
 
     char **listeImagesServeur = (char **)malloc(0);
-    while ((lecture = readdir(rep))) //Pour chaque fichier trouvé
+    while ((lecture = readdir(rep))) // Pour chaque fichier trouvé
     {
-        //Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
+        // Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
         if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
         {
             listeImagesServeur = (char **)realloc(listeImagesServeur, sizeof(char *) * (*nbFichier + 1));
@@ -43,16 +44,26 @@ char **recupereListeImagesServeur(int *nbFichier)
     }
 
     closedir(rep);
-    return listeImagesServeur; //Renvoie la liste des fichiers;
+    return listeImagesServeur; // Renvoie la liste des fichiers;
 }
 
-
+void envoiListeImagesServeurClient(int socketService, char **listeImagesServeur, int nbImagesServeur)
+{
+    write(socketService, &nbImagesServeur, sizeof(int));
+    printf("nb images : %d\n", nbImagesServeur);
+    for (int i = 0; i < nbImagesServeur; i++)
+    {
+        int length = strlen(listeImagesServeur[i]);
+        write(socketService, &length, sizeof(int));
+        write(socketService, listeImagesServeur[i], strlen(listeImagesServeur[i]));
+    }
+}
 
 char **recupereListeImagesAEnvoyer(char **listeImagesClient, int *nbFichier)
 {
     char **listeImagesAEnvoyer = (char **)malloc(0);
-    int numFichier = 0; //Numéro du fichier selectionné
-    *nbFichier = 0;     //Nombre de fichiers à envoyer
+    int numFichier = 0; // Numéro du fichier selectionné
+    *nbFichier = 0;     // Nombre de fichiers à envoyer
 
     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
     scanf("%d", &numFichier);
@@ -60,8 +71,8 @@ char **recupereListeImagesAEnvoyer(char **listeImagesClient, int *nbFichier)
     {
         *nbFichier += 1;
         listeImagesAEnvoyer = (char **)realloc(listeImagesAEnvoyer, sizeof(char *) * (*nbFichier));
-        listeImagesAEnvoyer[*nbFichier - 1] = malloc(sizeof(char) * 100);               //Allocation mémoire pour la nouvelle chaîne
-        strcpy(listeImagesAEnvoyer[*nbFichier - 1], listeImagesClient[numFichier - 1]); //On stocke le texte correspondant au numéro du fichier choisi
+        listeImagesAEnvoyer[*nbFichier - 1] = malloc(sizeof(char) * 100);               // Allocation mémoire pour la nouvelle chaîne
+        strcpy(listeImagesAEnvoyer[*nbFichier - 1], listeImagesClient[numFichier - 1]); // On stocke le texte correspondant au numéro du fichier choisi
         printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
         scanf("%d", &numFichier);
     }
@@ -73,12 +84,12 @@ void envoiImages(int socketService, char **listeImagesAEnvoyer, int nbFichier)
 {
     if (nbFichier > 0)
     {
-        write(socketService, &nbFichier, sizeof(int)); //Envoi au serveur le nombre de fichiers qu'il va recevoir
+        write(socketService, &nbFichier, sizeof(int)); // Envoi au serveur le nombre de fichiers qu'il va recevoir
         for (int j = 0; j < nbFichier; j++)
         {
             envoiImage(socketService, listeImagesAEnvoyer[j]);
         }
-        printf("Envoi des fichiers terminé\n"); //Envoi terminé
+        printf("Envoi des fichiers terminé\n"); // Envoi terminé
     }
     else
     {
@@ -92,13 +103,13 @@ void envoiClient(int socketService)
     int tailleListeImagesClient = 0;
     char **listeImagesClient = recupereListeImagesServeur(&tailleListeImagesClient);
 
-    int page = 0;   //Page courante
-    int action = 0; //Représente le choix fait par l'utilisateur
+    int page = 0;   // Page courante
+    int action = 0; // Représente le choix fait par l'utilisateur
     while (action != -1)
     {
-        //clear();                //Vide le terminal
+        // clear();                //Vide le terminal
         printf("*** Liste des fichiers disponibles pour le dépôt ***\n");
-        int debut = (page * 4); //Se place sur le premier fichier de la page
+        int debut = (page * 4); // Se place sur le premier fichier de la page
         int fin = debut + 4;
         while (debut < fin && debut < tailleListeImagesClient)
         {
@@ -106,11 +117,12 @@ void envoiClient(int socketService)
             debut++;
         }
         printf("\n(1) Page précédente\n(2) Choisir des fichiers à déposer\n(3) Page suivante\n(-1) Retour au menu principal\n");
-        scanf("%d", &action); //Demande l'action suivante
+        scanf("%d", &action); // Demande l'action suivante
         switch (action)
         {
         case 1:
-            if (page != 0){
+            if (page != 0)
+            {
                 page--;
             }
             break;

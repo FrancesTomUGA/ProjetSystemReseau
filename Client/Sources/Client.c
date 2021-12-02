@@ -10,7 +10,7 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include "EnvoiServeur.h"
-#include "Reception.h"
+#include "ReceptionServeur.h"
 #define ENVOI 1
 #define RECEPTION 2
 #define ARRET 3

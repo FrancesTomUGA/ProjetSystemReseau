@@ -16,6 +16,44 @@ void clear(){
      system("clear");
 }
 
+void envoiListeImagesATelecharger(int socketCommClient, char** listeImagesATelecharger, int nbImagesATelecharger){
+     write(socketCommClient, &nbImagesATelecharger, sizeof(int));
+     printf("dl de %d fichiers\n", nbImagesATelecharger);
+     for (int i = 0; i < nbImagesATelecharger; i++)
+     {
+          printf("dans la boucle de envoiListeImagesATelecharger\n");
+          int length = strlen(listeImagesATelecharger[i]);
+          write(socketCommClient, &length, sizeof(int));
+          write(socketCommClient, listeImagesATelecharger[i], strlen(listeImagesATelecharger[i]));
+     }
+     printf("fin envoi liste images a telecharger\n");
+}
+
+char **choixImagesATelecharger(char **listeImagesServeur, int nbImagesServeur, int *nbImagesATelecharger)
+{
+     for (int i = 0; i < nbImagesServeur; i++)
+     {
+          printf("mot : %s\n", listeImagesServeur[i]);
+     }
+
+     char **listeImagesATelecharger = (char **)malloc(0);
+     int numFichier = 0; // Numéro du fichier selectionné
+     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
+     scanf("%d", &numFichier);
+
+     while (numFichier != -1)
+     {
+          *nbImagesATelecharger += 1;
+          listeImagesATelecharger = (char **)realloc(listeImagesATelecharger, sizeof(char *) * (*nbImagesATelecharger));
+          listeImagesATelecharger[*nbImagesATelecharger - 1] = malloc(sizeof(char) * 100);                // Allocation mémoire pour la nouvelle chaîne
+          strcpy(listeImagesATelecharger[*nbImagesATelecharger - 1], listeImagesServeur[numFichier - 1]); // On stocke le texte correspondant au numéro du fichier choisi
+          printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
+          scanf("%d", &numFichier);
+     }
+     printf("fin choix images\n");
+     return listeImagesATelecharger;
+}
+
 char** recupereListeImagesClient(int *nbFichier){
      struct dirent *lecture;
      DIR *rep; //Permet de stocker les informations du répertoire
@@ -78,6 +116,7 @@ void envoiServeur(int socketCommClient){
 
      int tailleListeImagesClient = 0;
      char** listeImagesClient = recupereListeImagesClient(&tailleListeImagesClient);
+
 
      int page = 0;   //Page courante
      int action = 0; //Représente le choix fait par l'utilisateur

@@ -1,13 +1,10 @@
-#ifndef RECEPTION_H
-#define RECEPTION_H
+#ifndef RECEPTIONSERVEUR_H
+#define RECEPTIONSERVEUR_H
 
-/**
- * @brief 
- * Pour le moment rien
- */
+char **choixImagesATelecharger(char **listeImagesServeur, int nbImagesServeur, int *nbImagesATelecharger);
 void receptionFichier(int socketCommClient);
 void telechargementServeur(int socketCommClient);
 void telechargeImages(int socketCommClient, char** listeImagesATelecharger, int nbFichiers);
-char **choixImagesATelecharger(char **listeImagesServeur, int* tailleListeImagesServeur, int *nbFichiers,int socketCommClient);
 char **receptionListeImagesServeur(int socketCommClient, int* nbImagesServeur);
+
 #endif
