@@ -1,0 +1,10 @@
+image/jpeg
+image/png
+image/x-portable-pixmap
+image/svg+xml
+image/x-ms-bmp
+image/gif
+image/bmp
+image/x-icon
+image/tiff
+image/webp

@@ -37,7 +37,9 @@ void handler()
  * @return int
  */
 int main(int argc, char const *argv[])
-{    if(argc != 2){
+{
+     if (argc != 2)
+     {
           fprintf(stderr, "Erreur usage, 1 paramètres\n");
           exit(-1);
      }
@@ -149,11 +151,13 @@ int main(int argc, char const *argv[])
                     {
                     case RECEVOIR:;
                          int nbFichiersALire = 0;
-                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
-
+                         while (read(socketService, &nbFichiersALire, sizeof(int)) == -1)
+                              ;
+     
                          int i = 0;
                          while (i < nbFichiersALire)
                          {
+                              printf("\n\n");
                               receptionImage(socketService);
                               i++;
                          }
@@ -176,11 +180,21 @@ int main(int argc, char const *argv[])
                               envoiImage(socketService, listeImagesATelecharger[i]);
                          }
                          int fini = 0;
-                         while(read(socketService,&fini,sizeof(int))==-1);
-                         if (listeImagesServeur != NULL){
+                         while (read(socketService, &fini, sizeof(int)) == -1)
+                              ;
+                         if (listeImagesServeur != NULL)
+                         {
+                              for(int i = 0; i < nbImagesServeur; i++){
+                                   free(listeImagesServeur[i]);
+                              }
                               free(listeImagesServeur);
                          }
-                         if (listeImagesATelecharger != NULL){
+
+                         if (listeImagesATelecharger != NULL)
+                         {
+                              for(int i = 0; i < nbImagesATelecharger; i++){
+                                   free(listeImagesATelecharger[i]);
+                              }
                               free(listeImagesATelecharger);
                          }
                          break;

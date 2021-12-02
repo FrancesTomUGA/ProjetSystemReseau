@@ -17,7 +17,6 @@
 #define ARRET 3
 #define SORTIE -1
 #endif
-
 /**
  * @brief Demande à l'utilisateur ce qu'il souhaite effectuer et renvoie le code d'action correspondant
  * 
@@ -27,19 +26,20 @@ int choixAction()
 {
      char temp[10];
      int choix;
-     
-     do{
+
+     do
+     {
           clear();
           printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
           choix = saisieEntier();
-          if (choix != ENVOI && choix != RECEPTION && choix != ARRET){
+          if (choix != ENVOI && choix != RECEPTION && choix != ARRET)
+          {
                choix = SORTIE;
           }
-     }while(choix == 0);
+     } while (choix == 0);
 
      return choix;
 }
-
 
 /**
  * @brief Coeur du programme CLIENT il crée la socket permettant de discuter avec le serveur
@@ -52,22 +52,24 @@ int choixAction()
 int main(int argc, char const *argv[])
 {
 
-     if(argc != 3){
+     if (argc != 3)
+     {
           fprintf(stderr, "Erreur usage, 2 paramètres\n");
           exit(-1);
      }
 
-
      //Création d'une socket communication client
      int socketCommClient = socket(AF_INET, SOCK_STREAM, 0);
-     if (socketCommClient == -1){
+     if (socketCommClient == -1)
+     {
           perror("socket()");
           exit(-1);
      }
 
      //Récupère les informations du serveur grâce au nom de la machine
      struct hostent *infoServeur = gethostbyname(argv[1]);
-     if(infoServeur == NULL){
+     if (infoServeur == NULL)
+     {
           fprintf(stderr, "Erreur hostname\n");
           exit(-1);
      }
@@ -80,10 +82,13 @@ int main(int argc, char const *argv[])
      printf("Adresse serveur : %s\n", inet_ntoa(socketServeur.sin_addr));
 
      //Connection du client au serveur
-     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1){
+     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1)
+     {
           perror("connect()");
           exit(-1);
-     }else{
+     }
+     else
+     {
           printf("Connection établie\n");
      }
 
@@ -91,9 +96,10 @@ int main(int argc, char const *argv[])
      while ((action = choixAction()) != ARRET) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
-          switch (action){
+          switch (action)
+          {
           case ENVOI:
-               envoiServeur(socketCommClient/*, listeFichier, tabFichiersAEnvoyer*/);
+               envoiServeur(socketCommClient /*, listeFichier, tabFichiersAEnvoyer*/);
                break;
           case RECEPTION:
                telechargementServeur(socketCommClient);
@@ -104,7 +110,7 @@ int main(int argc, char const *argv[])
           }
           clear();
      }
-     
+
      int sortie = SORTIE;
      write(socketCommClient, &sortie, sizeof(int));
      printf("Fin du programme\n");

@@ -78,9 +78,13 @@ char **recupereListeImagesClient(int *nbFichier)
           {
                listeImagesClient = (char **)realloc(listeImagesClient, sizeof(char *) * (*nbFichier + 1));
                listeImagesClient[*nbFichier] = malloc(sizeof(char) * strlen(lecture->d_name));
-               listeImagesClient[*nbFichier] = lecture->d_name;
+               strcpy(listeImagesClient[*nbFichier], lecture->d_name);
                *nbFichier += 1;
           }
+     }
+
+     if(lecture!=NULL){
+          free(lecture);
      }
      closedir(rep);
      return listeImagesClient; //Renvoie la liste des fichiers;
@@ -125,7 +129,8 @@ void envoiServeur(int socketCommClient)
 
      int tailleListeImagesClient = 0;
      char **listeImagesClient = recupereListeImagesClient(&tailleListeImagesClient);
-
+     char **listeImagesAEnvoyer;
+     int tailleListeImagesAEnvoyer = 0;
      int page = 0;   //Page courante
      int action = 0; //Représente le choix fait par l'utilisateur
      while (action != FIN_ENVOI)
@@ -150,17 +155,22 @@ void envoiServeur(int socketCommClient)
                }
                break;
           case 2:;
-               int tailleListeImagesAEnvoyer = 0;
-               char **listeImagesAEnvoyer = recupereListeImagesAEnvoyer(listeImagesClient, &tailleListeImagesAEnvoyer,tailleListeImagesClient);
+
+               listeImagesAEnvoyer = recupereListeImagesAEnvoyer(listeImagesClient, &tailleListeImagesAEnvoyer, tailleListeImagesClient);
                if (tailleListeImagesAEnvoyer > 0)
                {
                     int code = ENVOI;
                     write(socketCommClient, &code, sizeof(int));
                     envoiImages(socketCommClient, listeImagesAEnvoyer, tailleListeImagesAEnvoyer);
+                    printf("Fin envoieImages\n");
                }
                else
                {
                     printf("Vous n'avez sélectionné aucune image\n");
+               }
+               if (listeImagesAEnvoyer != NULL)
+               {
+                    free(listeImagesAEnvoyer);
                }
                action = FIN_ENVOI;
                break;
@@ -173,6 +183,20 @@ void envoiServeur(int socketCommClient)
           default:
                break;
           }
+     }
+     printf("free listeImagesClient\n");
+     if (listeImagesClient != NULL)
+     {
+          for (int i = 0; i < tailleListeImagesClient; i++)
+          {
+               printf("dedans\n");
+               if (listeImagesClient[i] != NULL)
+               {
+                    free(listeImagesClient[i]);
+               }
+          }
+          printf("dehors\n");
+          free(listeImagesClient);
      }
      /*clear();
      printf("Téléchargement terminé\n");
