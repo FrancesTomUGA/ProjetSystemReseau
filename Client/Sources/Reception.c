@@ -13,8 +13,8 @@ void receptionFichier(int socketCommClient)
 
      write(socketCommClient, &code, sizeof(int));
      int nbFichier = 0;
-     while (read(socketCommClient, &nbFichier, sizeof(int)) == -1)
-          ;
+     while (read(socketCommClient, &nbFichier, sizeof(int)) == -1);
+     
      char **laListeDesFichiers = malloc(sizeof(char *) * nbFichier);
      int tailleChaine = 0;
      for (int i = 0; i < nbFichier; i++)

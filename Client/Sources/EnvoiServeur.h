@@ -1,5 +1,5 @@
-#ifndef ENVOI_H
-#define ENVOI_H
+#ifndef ENVOISERVEUR_H
+#define ENVOISERVEUR_H
 
 
 /**
@@ -39,6 +39,11 @@ void selectionImagesEnvoi(int socketCommClient,char** listeFichier,char** tabFic
  */
 void affichageListeFichier(int socketCommClient,int nbFichier,char** listeFichier,char** tabFichiersAEnvoyer);
 
+char** recupereListeImagesClient(int *nbFichier);
+char** recupereListeImagesAEnvoyer(int socketCommClient, char **listeImagesClient, int* nbFichier);
+void envoiImages(int socketCommClient, char** listeImagesAEnvoyer, int nbFichier);
+
+
 /**
  * @brief Appelle toute les méthodes permettant le dialogue avec l'utilisateur concernant l'envoie de fichier vers le serveur
  * 
@@ -46,6 +51,6 @@ void affichageListeFichier(int socketCommClient,int nbFichier,char** listeFichie
  * @param listeFichier un tableau de chaines de caractères contenant la liste de tous les fichiers dans le répertoire d'images
  * @param tabFichiersAEnvoyer un tableau de chaines de caractères contenant la liste des fichiers à envoyer
  */
-void envoieFichier(int socketCommClient,char** listeFichier,char** tabFichiersAEnvoyer);
+void envoiServeur(int socketCommClient);
 
 #endif

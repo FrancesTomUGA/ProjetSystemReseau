@@ -8,7 +8,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include "Transfert.h"
+#include "TransfertClient.h"
 #include <pthread.h>
 #include <dirent.h>
 #include <sys/time.h>
@@ -25,10 +25,6 @@
 void handler()
 {
      wait(NULL);
-}
-
-void socket_close(){
-     printf("socket closed timemout\n");
 }
 
 /**
@@ -48,8 +44,7 @@ int main(int argc, char const *argv[])
      sigaction(SIGCHLD, &ac, NULL);
      //Création d'une socket d'écoute
      int socketEcoute = socket(AF_INET, SOCK_STREAM, 0);
-     if (socketEcoute == -1)
-     {
+     if (socketEcoute == -1){
           perror("socket()");
           exit(-1);
      }
@@ -67,33 +62,27 @@ int main(int argc, char const *argv[])
      
      //paramétrage de la socket pour ne plus avoir l'erreur bind(): adress already in use 
      //SO_REUSEADDR permet la réutilisation d'une adresse locale
+     //A verifier sur les machines de la fac
      int option_value = 1;
-     if (setsockopt(socketEcoute, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int)) == -1)
-     {
+     if (setsockopt(socketEcoute, SOL_SOCKET, SO_REUSEADDR, &option_value, sizeof(int)) == -1){
           perror("setsockopt()");
           pthread_exit(NULL);
      }
      
-     if (bind(socketEcoute, (struct sockaddr *)&socketClient, sizeof(socketClient)) == -1)
-     {
+     if (bind(socketEcoute, (struct sockaddr *)&socketClient, sizeof(socketClient)) == -1){
           perror("bind()");
           exit(-1);
-     }
-     else
-     {
-          printf("Tout va bien attachement socket\n");
+     }else{
+          printf("Bind socket\n");
      }
 
      //Ouverture du service
      //Maximum 5 connexions en attente
-     if (listen(socketEcoute, 5) == -1)
-     {
+     if (listen(socketEcoute, 5) == -1){
           perror("listen()");
           exit(-1);
-     }
-     else
-     {
-          printf("Tout va bien ouverture\n");
+     }else{
+          printf("Listen socket\n");
      }
 
      //Acceptation de la connection
@@ -101,13 +90,10 @@ int main(int argc, char const *argv[])
      while (1)
      {
           int socketService;
-          if ((socketService = accept(socketEcoute, (struct sockaddr *)&socketClient, &len)) == -1)
-          { /* /!\ L'appel de la fonction accept est bloquant /!\ */
+          if ((socketService = accept(socketEcoute, (struct sockaddr *)&socketClient, &len)) == -1){ /* /!\ L'appel de la fonction accept est bloquant /!\ */
                perror("accept()");
                exit(-1);
-          }
-          else
-          {
+          }else{
                printf("Accepte connection ok\n"); // Ici on a eu aucun affichage car on avait pas mit de \n
                                                   // penser à en mettre pour flush le buffer et afficher sur la sortie standard
           }
@@ -123,27 +109,23 @@ int main(int argc, char const *argv[])
                perror("setsockopt()");
           }
 
-
-          switch (fork())
-          {
+          switch (fork()){
           case -1:
                //Erreur
                perror("fork()");
                exit(-1);
-               break;
-
           case 0:
                //Comportement du fils
-               close(socketEcoute); //Fermeture du descripteur de fichier
+               close(socketEcoute); //Fermeture de la socket d'ecoute du pere
 
                signal(SIGCHLD, SIG_DFL); //Redéfinition (à défaut) du comportement du signal SIGCHLD pour ne pas hériter de celui du père = réinitialisation
 
                int action;
                while (read(socketService, &action, sizeof(int)) == -1);
+
                while (action != FINCONNEXION)
                {
-                    switch (action)
-                    {
+                    switch (action){
                     case RECEVOIR:;
                          int nbFichiersALire = 0;
                          while (read(socketService, &nbFichiersALire, sizeof(int)) == -1);
@@ -152,7 +134,7 @@ int main(int argc, char const *argv[])
                          int i = 0;
                          while (i < nbFichiersALire)
                          {
-                              receptionImageServeur(socketService);
+                              receptionImage(socketService);
                               i++;
                          }
                          printf("Enregistrement terminé\n");
@@ -163,8 +145,7 @@ int main(int argc, char const *argv[])
                          DIR *rep; //Permet de stocker les informations du répertoire
 
                          rep = opendir("./FilesServeur");
-                         if (rep == NULL)
-                         {
+                         if (rep == NULL){
                               printf("erreur ouverture rep\n");
                               exit(-1);
                          }
@@ -173,8 +154,7 @@ int main(int argc, char const *argv[])
                          {
 
                               //Si c'est bien un fichier (== DT_REG) et que pas un fichier caché (ne commence pas par un .)
-                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
-                              {
+                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.'){
                                    nbFichier = nbFichier + 1;
                               }
                          }
@@ -186,8 +166,7 @@ int main(int argc, char const *argv[])
                          rep = opendir("./FilesServeur");
                          while ((lecture = readdir(rep)))
                          {
-                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.')
-                              {
+                              if (lecture->d_type == DT_REG && (lecture->d_name)[0] != '.'){
                                    laListeDesFichiers[nbFichier] = malloc(sizeof(char) * strlen(lecture->d_name));
                                    //printf("dname = : %s\n",lecture->d_name);
                                    laListeDesFichiers[nbFichier] = lecture->d_name;

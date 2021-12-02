@@ -1,5 +1,5 @@
-#ifndef TRANSFERT_C
-#define TRANSFERT_C
+#ifndef TRANSFERTSERVEUR_C
+#define TRANSFERTSERVEUR_C
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -8,12 +8,12 @@
 #include <limits.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "Transfert.h"
+#include "TransfertServeur.h"
 #include <sys/wait.h>
 #include <sys/stat.h>
 #endif
 
-void envoiImageClientServeur(char *nomImage, int socketTransfert)
+void envoiImage(int socketTransfert, char *nomImage)
 {
      int imageLue;
 
@@ -54,13 +54,12 @@ void envoiImageClientServeur(char *nomImage, int socketTransfert)
           write(socketTransfert, chaine, size);
           chaine[0] = '\0';
      }
-
      int sortie;
      while (read(socketTransfert, &sortie, sizeof(int)) == -1);
      printf("Lecture image et transmission terminées\n");
 }
 
-void receptionImageServeur(int socketService)
+void receptionImage(int socketService)
 {
      int imageEcrite;
      //lecture nom image
@@ -92,12 +91,9 @@ void receptionImageServeur(int socketService)
      int redSize = 0;
      while (redSizeTotal < imageSize)
      {
-
           redSize = read(socketService, chaine, sizeof(chaine));
           redSizeTotal += redSize;
-          printf("réception données image %s\n", cheminImageTransfert);
           write(imageEcrite, chaine, redSize);
-          printf("taille lu : %d et taille de l'image : %d\n", redSizeTotal, imageSize);
      }
      int fini = 1;
      write(socketService, &fini, sizeof(int));

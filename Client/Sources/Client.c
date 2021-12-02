@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <arpa/inet.h>
-#include "Envoi.h"
+#include "EnvoiServeur.h"
 #include "Reception.h"
 #define ENVOI 1
 #define RECEPTION 2
@@ -70,16 +70,16 @@ int main(int argc, char const *argv[])
      }
 
      //pointeur qui permettra a tout le programme de récuperer la liste des fichiers du dossier
-     char **listeFichier;
+     //char **listeFichier;
      //pointeur qui permettra a tout le programme de connaitre la liste des fichiers que l'utilisateur souhaite envoyer
-     char **tabFichiersAEnvoyer;
+     //char **tabFichiersAEnvoyer;
      int action;
      while ((action = choixAction()) != ARRET) //Tant que l'utilisateur ne souhaite pas arrêter
      {
           clear();
           switch (action){
           case ENVOI:
-               envoieFichier(socketCommClient, listeFichier, tabFichiersAEnvoyer);
+               envoiServeur(socketCommClient/*, listeFichier, tabFichiersAEnvoyer*/);
                break;
           case RECEPTION:
                receptionFichier(socketCommClient);

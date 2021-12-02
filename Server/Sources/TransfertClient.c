@@ -1,5 +1,5 @@
-#ifndef TRANSFERT_C
-#define TRANSFERT_C
+#ifndef TRANSFERTCLIENT_C
+#define TRANSFERTCLIENT_C
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -8,24 +8,24 @@
 #include <limits.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include "Transfert.h"
+#include "TransfertClient.h"
 #include <sys/wait.h>
 #include <sys/stat.h>
 #endif
 
-void envoiImageClientServeur(char *nomImage, int socketTransfert)
+void envoiImage(int socketTransfert, char *nomImage)
 {
      int imageLue;
 
      char cheminImageLue[306];
      cheminImageLue[0] = '\0';
 
-     strcat(cheminImageLue, "./FilesClient/");
+     strcat(cheminImageLue, "./FilesServeur/");
      strcat(cheminImageLue, nomImage);
 
      char cheminImageTransfert[306];
      cheminImageTransfert[0] = '\0';
-     strcat(cheminImageTransfert, "./FilesServeur/");
+     strcat(cheminImageTransfert, "./FilesClient/");
      strcat(cheminImageTransfert, nomImage);
 
      //envoi du nom de l'image au serveur
@@ -59,7 +59,7 @@ void envoiImageClientServeur(char *nomImage, int socketTransfert)
      printf("Lecture image et transmission terminées\n");
 }
 
-void receptionImageServeur(int socketService)
+void receptionImage(int socketService)
 {
      int imageEcrite;
      //lecture nom image
@@ -91,7 +91,6 @@ void receptionImageServeur(int socketService)
      int redSize = 0;
      while (redSizeTotal < imageSize)
      {
-
           redSize = read(socketService, chaine, sizeof(chaine));
           redSizeTotal += redSize;
           write(imageEcrite, chaine, redSize);
