@@ -10,7 +10,7 @@ OBJ = $(SRC:$(SFOLD)/.c=$(OFOLD)/.o)
 all : $(EXECSERVER)
 
 $(EXECSERVER) : $(OBJ)
-	$(CC) -o $(EXECSERVER) $^
+	$(CC) -g -o $(EXECSERVER) $^
 
 %.o : %.c
 	$(CC) -c -o $(OBJ) $(SRC)

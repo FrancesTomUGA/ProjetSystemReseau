@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
                envoiServeur(socketCommClient/*, listeFichier, tabFichiersAEnvoyer*/);
                break;
           case RECEPTION:
-               receptionFichier(socketCommClient);
+               telechargementServeur(socketCommClient);
                break;
           case ARRET:
           default:

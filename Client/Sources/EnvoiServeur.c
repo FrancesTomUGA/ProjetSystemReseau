@@ -41,7 +41,7 @@ char** recupereListeImagesClient(int *nbFichier){
      return listeImagesClient; //Renvoie la liste des fichiers;
 }
 
-char** recupereListeImagesAEnvoyer(int socketCommClient, char **listeImagesClient, int* nbFichier)
+char** recupereListeImagesAEnvoyer(char **listeImagesClient, int* nbFichier)
 {
      char** listeImagesAEnvoyer = (char **) malloc(0);
      int numFichier = 0; //Numéro du fichier selectionné
@@ -105,7 +105,7 @@ void envoiServeur(int socketCommClient){
                int code = ENVOI;
                write(socketCommClient, &code, sizeof(int));
                int tailleListeImagesAEnvoyer = 0;
-               char** listeImagesAEnvoyer = recupereListeImagesAEnvoyer(socketCommClient, listeImagesClient, &tailleListeImagesAEnvoyer);
+               char** listeImagesAEnvoyer = recupereListeImagesAEnvoyer(listeImagesClient, &tailleListeImagesAEnvoyer);
                envoiImages(socketCommClient, listeImagesAEnvoyer, tailleListeImagesAEnvoyer);
                break;
           case 3:

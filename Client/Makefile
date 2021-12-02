@@ -15,7 +15,7 @@ $(EXECCLIENT) : $(OBJ)
 %.o : %.c
 	$(CC) -c -o $(OBJ) $(SRC)
 
-#fullClean : clean
-#	rm -rf Client
-#clean :
-#	#rem -rf Objets/*.o
+fullClean : clean
+	rm -rf Client
+clean :
+	#rem -rf Objets/*.o
