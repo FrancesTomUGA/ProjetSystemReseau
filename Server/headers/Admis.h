@@ -11,6 +11,12 @@
  */
 int admissible(char* nomImage);
 
+/**
+ * @brief Indique si la checksum de l'image est interdite ou non
+ * 
+ * @param cheminImage le chemin de l'image dont on veut vérifier la checksum
+ */
+int checksumInterdite(char *cheminImage);
 
 /**
  * @brief Récupère la liste des types d'images autorisés pour le stockage 
