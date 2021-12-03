@@ -198,9 +198,5 @@ void envoiServeur(int socketCommClient)
           printf("dehors\n");
           free(listeImagesClient);
      }
-     /*clear();
-     printf("Téléchargement terminé\n");
-     printf("Appuyer sur Entrée pour revenir au menu principal\n");
-     char s[30];
-     scanf("%s\n",s);*/
+     //Voir pour mettre message apres telechargement avec appuie touche pour confirmer
 }

@@ -5,8 +5,8 @@ all :
 	$(MAKE) -C Server $@
 
 globalClean : clean
-	rm -rf Client/Client
-	rm -rf Server/Server
+	rm -rf Client/bin/Client
+	rm -rf Server/bin/Server
 clean :
 	rm -rf Client/Objets/*
 	rm -rf Server/Objets/*

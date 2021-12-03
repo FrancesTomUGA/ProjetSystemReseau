@@ -1,5 +1,6 @@
 #ifndef CLIENT_C
 #define CLIENT_C
+#include "client.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/socket.h>
@@ -17,11 +18,7 @@
 #define ARRET 3
 #define SORTIE -1
 #endif
-/**
- * @brief Demande à l'utilisateur ce qu'il souhaite effectuer et renvoie le code d'action correspondant
- * 
- * @return int 
- */
+
 int choixAction()
 {
      char temp[10];

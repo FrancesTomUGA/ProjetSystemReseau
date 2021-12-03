@@ -1,6 +1,8 @@
 #Variables
 CC = gcc
-EXECSERVER = Server
+EXECSERVER = bin/Server
+INC_DIR = ./headers
+CFLAGS=-I$(INC_DIR)
 SFOLD = Sources
 OFOLD = Objets
 SRC = $(wildcard $(SFOLD)/*.c)
@@ -10,7 +12,7 @@ OBJ = $(SRC:$(SFOLD)/.c=$(OFOLD)/.o)
 all : $(EXECSERVER)
 
 $(EXECSERVER) : $(OBJ)
-	$(CC) -g -o $(EXECSERVER) $^
+	$(CC) -g -o $(EXECSERVER) $^ $(CFLAGS)
 
 %.o : %.c
 	$(CC) -c -o $(OBJ) $(SRC)

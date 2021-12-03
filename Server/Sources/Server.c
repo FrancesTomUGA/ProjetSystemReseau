@@ -207,8 +207,7 @@ int main(int argc, char const *argv[])
                     printf("Envoi terminé\n");
                     // Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
                     int size_read_action;
-                    while ((size_read_action = read(socketService, &action, sizeof(int))) == -1)
-                         ;
+                    while ((size_read_action = read(socketService, &action, sizeof(int))) == -1);
 
                     if (size_read_action == ERREUR_READ)
                     {
