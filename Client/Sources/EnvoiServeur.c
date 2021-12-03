@@ -15,11 +15,6 @@
 
 
 
-void clear() {
-     system("clear");
-}
-
-
 void envoiListeImagesATelecharger(int socketCommClient, char **listeImagesATelecharger, int nbImagesATelecharger) {
      if (nbImagesATelecharger > 0) {
           write(socketCommClient, &nbImagesATelecharger, sizeof(int));

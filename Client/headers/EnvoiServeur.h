@@ -4,13 +4,6 @@
 
 
 /**
- * @brief Vide le terminal pour que l'affichage suivant soit propre
- * 
- */
-void clear();
-
-
-/**
  * @brief envoi le nombre d'image à télécharger au serveur puis, pour chaque image à envoyer
  * envoi la taille de la chaîne suivie de la chaîne
  * 
