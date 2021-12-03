@@ -2,3 +2,7 @@ image/png
 image/x-portable-pixmap
 image/jpeg
 image/gif
+image/bmp
+image/x-icon
+image/tiff
+image/webp

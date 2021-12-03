@@ -17,9 +17,9 @@
 
 
 
-void envoiImage(int socketTransfert, char *nomImage) {
+void envoiImage(int socketCommClient, char *nomImage) {
      int imageLue;
-     write(socketTransfert, nomImage, 306); // Envoi du nom de l'image au serveur
+     write(socketCommClient, nomImage, 306); // Envoi du nom de l'image au serveur
      printf("Nom : %s\n",nomImage);
 
      char cheminImageLue[306];
@@ -38,29 +38,29 @@ void envoiImage(int socketTransfert, char *nomImage) {
           imageSize = st.st_size; // Récupère la taille de l'image
      }
 
-     write(socketTransfert, &imageSize, sizeof(int));
+     write(socketCommClient, &imageSize, sizeof(int));
      
      // Envoi de l'image au serveur
      char chaine[4096];
      int size = 0;
      while ((size = read(imageLue, chaine, sizeof(chaine))) > 0) {
-          write(socketTransfert, chaine, size);
+          write(socketCommClient, chaine, size);
           chaine[0] = '\0';
      }
 
      int sortie;
-     while (read(socketTransfert, &sortie, sizeof(int)) == -1);
+     while (read(socketCommClient, &sortie, sizeof(int)) == -1);
      printf("Lecture de l'image %s et envoi au serveur terminés\n", nomImage);
 }
 
 
-void receptionImage(int socketService) {
+void receptionImage(int socketCommClient) {
      int imageEcrite;
      // Lecture du nom de l'image
      char *cheminImageTransfert = malloc(sizeof(char) * 306);
-     read(socketService, cheminImageTransfert, 306);
+     read(socketCommClient, cheminImageTransfert, 306);
      int imageSize;
-     read(socketService, &imageSize, sizeof(int));
+     read(socketCommClient, &imageSize, sizeof(int));
 
      // Création de l'image
      switch (fork()) {
@@ -87,14 +87,14 @@ void receptionImage(int socketService) {
      int redSize = 0;
 
      while (redSizeTotal < imageSize) {
-          redSize = read(socketService, chaine, sizeof(chaine));
+          redSize = read(socketCommClient, chaine, sizeof(chaine));
           redSizeTotal += redSize;
           write(imageEcrite, chaine, redSize);
      }
 
      int fini = 1;
-     write(socketService, &fini, sizeof(int));
-     printf("Téléchargement des images terminé\n");
+     write(socketCommClient, &fini, sizeof(int));
+     printf("Téléchargement de l'image terminé\n");
 
      if(cheminImageTransfert!=NULL) {
           free(cheminImageTransfert);

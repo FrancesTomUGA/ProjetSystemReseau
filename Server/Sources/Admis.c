@@ -46,7 +46,7 @@ char **recupereListeTypeMime(int *nbType) {
 int admissible(char *nomImage) {
      int nbType = 0;
      char **listeTypeMime = recupereListeTypeMime(&nbType);
-     int bool = 0;
+     int typeAdmis = 0;
      char cheminImageTmp[306];
      char cheminImageFinal[306];
      sprintf(cheminImageTmp, "./tmp/%s", nomImage);
@@ -79,10 +79,10 @@ int admissible(char *nomImage) {
                          // Comportement du père
                          close(f[1]); // Fermeture du descripteur non utilisé
 
-                         char typeFichierRecup[100];
-                         read(f[0], typeFichierRecup, sizeof(typeFichierRecup));
-                         char *recup = strrchr(typeFichierRecup, ' '); // Récupération du type en récupérant tout ce qui est situé après la dernière occurence du caractère 'espace'
-                         char *delim = strtok(typeFichierRecup, "\n");
+                         char typeFichiertype[100];
+                         read(f[0], typeFichiertype, sizeof(typeFichiertype));
+                         char *type = strrchr(typeFichiertype, ' '); // Récupération du type en récupérant tout ce qui est situé après la dernière occurence du caractère 'espace'
+                         char *delim = strtok(typeFichiertype, "\n");
                          char *tablOutput[2];
                          int i = 0;
 
@@ -91,35 +91,28 @@ int admissible(char *nomImage) {
                               delim = strtok(NULL, " ");
                          }
 
-                         printf("Recup : %s\n", recup);
-                         printf("Tableoutput : %s\n", tablOutput[0]);
                          int l;
-
-                         for (l = 1; l < strlen(recup); l++) {
-                              recup[l - 1] = recup[l]; // Suppression de l'espace en début de la chaîne de caractères
+                         for (l = 1; l < strlen(type); l++) {
+                              type[l - 1] = type[l]; // Suppression de l'espace en début de la chaîne de caractères
                          }
-                         recup[l - 1] = '\0';
-                         printf("Type lu : %s\n", recup);
+                         type[l - 1] = '\0';
 
                          int j = 0;
-                         while (j < nbType && bool == 0) {
+                         while (j < nbType && !typeAdmis) {
                               /* Vérification de l'existence de ce type dans le tableau parcouru des types mime admissibles */
-                              if (strcmp(recup, listeTypeMime[j]) == 0) {
-                                   printf("type admissible\n bool = %d\n", bool);
-                                   bool = 1;
+                              if (strcmp(type, listeTypeMime[j]) == 0) {
+                                   typeAdmis = 1;
                               }
                               j++;
                          }
 
-                         if (bool) {
-                              printf("Fichier déplacé dans FilesServeur\n");
+                         if (typeAdmis) {
+                              printf("Fichier accepté\n");
                               rename(cheminImageTmp, cheminImageFinal);
                          }
                          else {
-                              printf("Ce n'est pas le bon type\n Bool = %d\n", bool);
-
                               if (unlink(cheminImageTmp) == 0) {
-                                   printf("Fichier supprimé dans tmp\n");
+                                   printf("Fichier refusé (type %s non admis)\n", type);
                               }
                          }
                          exit(0);

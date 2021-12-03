@@ -63,12 +63,10 @@ void receptionImage(int socketService) {
      // Lecture nom image
      char *nomImage = malloc(sizeof(char) * 306);
      read(socketService, nomImage, 306);
-     printf("Reçu : %s\n",nomImage);
      int imageSize;
      read(socketService, &imageSize, sizeof(int));
      char cheminFichierTmp[306];
      sprintf(cheminFichierTmp,"./tmp/%s", nomImage);
-     printf("Chemin tmp : %s\n",cheminFichierTmp);
 
      // Création de l'image
      switch (fork()) {
@@ -103,7 +101,7 @@ void receptionImage(int socketService) {
      int fini = 1;
      admissible(nomImage);
      write(socketService, &fini, sizeof(int));
-     printf("Réception des données terminée\n");
+     printf("Réception de l'image terminée\n");
 
      if(nomImage != NULL) {
           free(nomImage);

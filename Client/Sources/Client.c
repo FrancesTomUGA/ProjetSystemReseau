@@ -19,8 +19,6 @@
 #define SORTIE -1
 #endif
 
-
-
 int choixAction() {
      int choix;
 
@@ -36,62 +34,75 @@ int choixAction() {
      return choix;
 }
 
-
 int main(int argc, char const *argv[]) {
-
+     int port;
      if (argc != 3) {
-          fprintf(stderr, "Erreur usage, 2 paramètres\n");
+          fprintf(stderr, "Erreur usage, 2 paramètres attendu(nom du server, port du serveur)\n");
           exit(-1);
      }
-
+     else
+     {
+          port = atoi(argv[2]);
+          if (port == 0) {
+               fprintf(stderr, "Numéro de port saisi incorrect\n");
+               exit(-1);
+          }
+     }
      //Création d'une socket communication client
      int socketCommClient = socket(AF_INET, SOCK_STREAM, 0);
-     if (socketCommClient == -1) {
+     if (socketCommClient == -1)
+     {
           perror("socket()");
           exit(-1);
      }
 
      //Récupère les informations du serveur grâce au nom de la machine
      struct hostent *infoServeur = gethostbyname(argv[1]);
-     if (infoServeur == NULL) {
+     if (infoServeur == NULL)
+     {
           fprintf(stderr, "Erreur hostname\n");
           exit(-1);
      }
-    
+
      struct sockaddr_in socketServeur;
 
      socketServeur.sin_family = AF_INET;
-     socketServeur.sin_port = htons(atoi(argv[2]));
+     socketServeur.sin_port = htons(port);
      memcpy(&socketServeur.sin_addr.s_addr, infoServeur->h_addr_list[0], infoServeur->h_length); //Affectation à l'aide de memcpy
 
      printf("Adresse serveur : %s\n", inet_ntoa(socketServeur.sin_addr));
 
      //Connection du client au serveur
-     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1) {
+     if (connect(socketCommClient, (struct sockaddr *)&socketServeur, sizeof(socketServeur)) == -1)
+     {
           perror("connect()");
           exit(-1);
      }
-     else {
+     else
+     {
           printf("Connection établie\n");
      }
 
      int action;
-     while ((action = choixAction()) != ARRET) { //Tant que l'utilisateur ne souhaite pas arrêter
+     while ((action = choixAction()) != ARRET)
+     { //Tant que l'utilisateur ne souhaite pas arrêter
           clear();
-          switch (action) {
-               case ENVOI:
-                    envoiServeur(socketCommClient /*, listeFichier, tabFichiersAEnvoyer*/);
-                    break;
+          switch (action)
+          {
+          case ENVOI:
+               envoiServeur(socketCommClient /*, listeFichier, tabFichiersAEnvoyer*/);
+               break;
 
-               case RECEPTION:
-                    telechargementServeur(socketCommClient);
-                    break;
+          case RECEPTION:
+               telechargementServeur(socketCommClient);
+               break;
 
-               case ARRET:
-               default:
-                    break;
+          case ARRET:
+          default:
+               break;
           }
-          if(action == 1 || action == 2){
+          if (action == 1 || action == 2)
+          {
                printf("Saisissez un caractère pour continuer\n");
                saisieEntier();
                clear();

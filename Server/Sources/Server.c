@@ -39,9 +39,17 @@ void handler() {
  * @return int
  */
 int main(int argc, char const *argv[]) {
+
+     int port;
      if (argc != 2) {
-          fprintf(stderr, "Erreur usage, 1 paramètre\n");
+          fprintf(stderr, "Erreur usage, 1 paramètre attendu (port du serveur)\n");
           exit(-1);
+     } else {
+          port = atoi(argv[1]);
+          if (port == 0) {
+               fprintf(stderr, "Numéro de port saisi incorrect\n");
+               exit(-1);
+          }
      }
 
      // Définition du comportement pour le traitement du signal SIGCHLD
@@ -149,11 +157,10 @@ int main(int argc, char const *argv[]) {
                                         i++;
                                    }
 
-                                   printf("Enregistrement terminé\n");
+                                   printf("\nRéception terminée\n");
                                    break;
 
                               case ENVOI:;
-                                   printf("Début de l'envoi\n");
                                    // Récupération des images sur le serveur
                                    int nbImagesServeur = 0;
                                    char **listeImagesServeur = recupereListeImagesServeur(&nbImagesServeur);
@@ -180,7 +187,6 @@ int main(int argc, char const *argv[]) {
                                    exit(0);
                                    break;
                          }
-                         printf("Envoi terminé\n");
                          // Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FIN_CONNECTION
                          int size_read_action;
                          while ((size_read_action = read(socketService, &action, sizeof(int))) == -1);
@@ -188,7 +194,6 @@ int main(int argc, char const *argv[]) {
                          if (size_read_action == ERREUR_READ) {
                               action = FIN_CONNEXION;
                          }
-                         printf("Action : %d\n", action);
                     }
                     printf("Fin de la connexion avec le client\n");
                     exit(0);

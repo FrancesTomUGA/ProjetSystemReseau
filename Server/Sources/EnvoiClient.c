@@ -50,7 +50,7 @@ void envoiListeImagesServeurClient(int socketService, char **listeImagesServeur,
      for (int i = 0; i < nbImagesServeur; i++) {
           int length = strlen(listeImagesServeur[i]);
           write(socketService, &length, sizeof(int));
-          write(socketService, listeImagesServeur[i], strlen(listeImagesServeur[i]));
+          write(socketService, listeImagesServeur[i], length);
      }
 }
 
@@ -61,9 +61,9 @@ void envoiImages(int socketService, char **listeImagesAEnvoyer, int nbFichier) {
           for (int j = 0; j < nbFichier; j++) {
                envoiImage(socketService, listeImagesAEnvoyer[j]);
           }
-          printf("Envoi des fichiers terminé\n");
+          printf("Envoi des images terminé\n");
      }
      else {
-          printf("Vous n'avez pas selectionne d'image\n");
+          printf("Vous n'avez pas selectionné d'image\n");
      }
 }

@@ -1,12 +1,12 @@
 # ProjetSystemReseau
-<<<<<<< HEAD
-#je test le depots --> jeremie
-=======
-Ce placer dans le repertoire ProjetSystemReseau
-Executer "make all"
-puis Executer "Server/Server" pour lancer le server
-puis Executer "Client/Client" pour lancer le client
+Pour utiliser le programme, il faut :
 
-IL RESTE A EFFECTUER l'envoi de fichier du serveur vers le client qui l'enregistre
-corriger l'erreur du chemin qui bug quand tu le recupere du serveur pour afficher la liste
->>>>>>> dev
+Se placer dans le repertoire groupe17
+Compiler en executant "make"
+Pour lancer le client, se déplacer dans le répertoire Client et exécuter bin/Client
+Pour lancer le serveur, se déplacer dans le répertoire Server et exécuter bin/Serveur
+
+L'exécutable du Client prend 2 paramètres : le nom de la machine, et le numéro de port
+L'exécutable du Serveur prend 1 paramètre : le numéro de port
+
+ATTENTION : avant de lancer les programmes, vérifier qu'un répertoire tmp est présent dans le répertoire Server (sinon le créer)
