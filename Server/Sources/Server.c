@@ -182,21 +182,24 @@ int main(int argc, char const *argv[])
                          int fini = 0;
                          while (read(socketService, &fini, sizeof(int)) == -1)
                               ;
+                         
                          if (listeImagesServeur != NULL)
                          {
-                              for(int i = 0; i < nbImagesServeur; i++){
+                              /*for(int i = 0; i < nbImagesServeur; i++){
                                    free(listeImagesServeur[i]);
-                              }
+                                   printf("je suis a la ligne %d\n",i);
+                              }*/
                               free(listeImagesServeur);
                          }
-
+                         printf("J'ai recu le code de fin\n");
+                         /*
                          if (listeImagesATelecharger != NULL)
                          {
                               for(int i = 0; i < nbImagesATelecharger; i++){
                                    free(listeImagesATelecharger[i]);
                               }
                               free(listeImagesATelecharger);
-                         }
+                         }*/
                          break;
                     case FIN_CONNEXION:
                          // fermeture de la socket et mort du fils
@@ -204,7 +207,7 @@ int main(int argc, char const *argv[])
                          exit(0);
                          break;
                     }
-                    printf("Envoi terminé\n");
+                    printf("échange terminé\n");
                     // Si le client a fermé la connection brutalement, le read renverra 0, et l'action sera mise à FINCONNECTION
                     int size_read_action;
                     while ((size_read_action = read(socketService, &action, sizeof(int))) == -1);

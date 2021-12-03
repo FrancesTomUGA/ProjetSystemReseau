@@ -104,6 +104,7 @@ int main(int argc, char const *argv[])
                break;
           case ARRET:
           default:
+               
                break;
           }
           clear();

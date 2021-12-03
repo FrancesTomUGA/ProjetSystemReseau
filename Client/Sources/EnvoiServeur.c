@@ -181,6 +181,7 @@ void envoiServeur(int socketCommClient)
                }
                break;
           default:
+               action = FIN_ENVOI;
                break;
           }
      }
