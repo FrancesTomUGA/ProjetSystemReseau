@@ -1,6 +1,8 @@
 #ifndef ENVOICLIENT_H
 #define ENVOICLIENT_H
 
+
+
 /**
  * @brief 
  * 
@@ -8,6 +10,8 @@
  * @return char** 
  */
 char **recupereListeImagesServeur(int *nbFichier);
+
+
 /**
  * @brief 
  * 
@@ -16,6 +20,8 @@ char **recupereListeImagesServeur(int *nbFichier);
  * @param nbFichier 
  */
 void envoiImages(int socketService, char **listeImagesAEnvoyer, int nbFichier);
+
+
 /**
  * @brief 
  * 

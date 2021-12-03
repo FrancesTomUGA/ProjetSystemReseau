@@ -1,6 +1,8 @@
 #ifndef TRANSFERTSERVEUR_H
 #define TRANSFERTSERVEUR_H
 
+
+
 /**
  * @brief 
  * 
@@ -8,6 +10,8 @@
  * @param nomImage 
  */
 void envoiImage(int socketTransfert, char *nomImage);
+
+
 /**
  * @brief 
  * 

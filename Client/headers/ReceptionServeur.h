@@ -1,6 +1,8 @@
 #ifndef RECEPTIONSERVEUR_H
 #define RECEPTIONSERVEUR_H
 
+
+
 /**
  * @brief 
  * 
@@ -10,18 +12,24 @@
  * @return char** 
  */
 char **choixImagesATelecharger(char **listeImagesServeur, int nbImagesServeur, int *nbImagesATelecharger);
+
+
 /**
  * @brief 
  * 
  * @param socketCommClient 
  */
 void receptionFichier(int socketCommClient);
+
+
 /**
  * @brief 
  * 
  * @param socketCommClient 
  */
 void telechargementServeur(int socketCommClient);
+
+
 /**
  * @brief 
  * 
@@ -30,6 +38,8 @@ void telechargementServeur(int socketCommClient);
  * @param nbFichiers 
  */
 void telechargeImages(int socketCommClient, char **listeImagesATelecharger, int nbFichiers);
+
+
 /**
  * @brief 
  * 
