@@ -4,7 +4,12 @@
 
 int saisieEntier()
 {
-     char temp[10];
+     char temp[50];
      scanf("%s", temp);
      return atoi(temp);
+}
+
+void clear()
+{
+     system("clear");
 }

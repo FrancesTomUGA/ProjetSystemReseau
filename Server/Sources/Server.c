@@ -185,21 +185,10 @@ int main(int argc, char const *argv[])
                          
                          if (listeImagesServeur != NULL)
                          {
-                              /*for(int i = 0; i < nbImagesServeur; i++){
-                                   free(listeImagesServeur[i]);
-                                   printf("je suis a la ligne %d\n",i);
-                              }*/
+
                               free(listeImagesServeur);
                          }
                          printf("J'ai recu le code de fin\n");
-                         /*
-                         if (listeImagesATelecharger != NULL)
-                         {
-                              for(int i = 0; i < nbImagesATelecharger; i++){
-                                   free(listeImagesATelecharger[i]);
-                              }
-                              free(listeImagesATelecharger);
-                         }*/
                          break;
                     case FIN_CONNEXION:
                          // fermeture de la socket et mort du fils

@@ -21,12 +21,9 @@
 
 int choixAction()
 {
-     char temp[10];
      int choix;
-
      do
      {
-          clear();
           printf("***** Que voulez-vous faire ? *****\n1- Déposer des fichiers \n2- Récupérer des fichiers\n3- Quitter\n");
           choix = saisieEntier();
           if (choix != ENVOI && choix != RECEPTION && choix != ARRET)
@@ -34,7 +31,7 @@ int choixAction()
                choix = SORTIE;
           }
      } while (choix == 0);
-
+     clear();
      return choix;
 }
 
@@ -107,6 +104,8 @@ int main(int argc, char const *argv[])
                
                break;
           }
+          printf("Saisissez un caractère pour continuer\n");
+          saisieEntier();
           clear();
      }
 

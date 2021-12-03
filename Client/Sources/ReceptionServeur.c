@@ -58,7 +58,7 @@ void telechargementServeur(int socketCommClient)
      char **listeImagesATelecharger = NULL; // liste des images que le client voudra telecharger
      while (action != FIN_RECEPTION)
      {
-          // clear();                //Vide le terminal
+          clear();                //Vide le terminal
           printf("*** Liste des images du serveur ***\n");
           int debut = (page * 4); // Se place sur le premier fichier de la page
           int fin = debut + 4;

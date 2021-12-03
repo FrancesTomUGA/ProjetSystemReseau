@@ -14,11 +14,6 @@
 #include <unistd.h>
 #endif
 
-void clear()
-{
-     system("clear");
-}
-
 void envoiListeImagesATelecharger(int socketCommClient, char **listeImagesATelecharger, int nbImagesATelecharger)
 {
      if (nbImagesATelecharger > 0)
@@ -30,7 +25,7 @@ void envoiListeImagesATelecharger(int socketCommClient, char **listeImagesATelec
                write(socketCommClient, &length, sizeof(int));
                write(socketCommClient, listeImagesATelecharger[i], strlen(listeImagesATelecharger[i]));
           }
-          printf("fin envoi liste images a telecharger\n");
+          printf("Fin envoi liste images a telecharger\n");
      }
      else
      {
@@ -42,19 +37,21 @@ char **choixImagesATelecharger(char **listeImagesServeur, int nbImagesServeur, i
 {
      char **listeImagesATelecharger = (char **)malloc(0);
      int numFichier = 0; // Numéro du fichier selectionné
-     printf("Saisissez le numéro du fichier que vous voulez ajouter (0 pour terminer) : ");
+     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
      numFichier = saisieEntier();
-
-     while (numFichier != 0)
+     while (numFichier != -1)
      {
-          *nbImagesATelecharger += 1;
-          listeImagesATelecharger = (char **)realloc(listeImagesATelecharger, sizeof(char *) * (*nbImagesATelecharger));
-          listeImagesATelecharger[*nbImagesATelecharger - 1] = malloc(sizeof(char) * 100);                // Allocation mémoire pour la nouvelle chaîne
-          strcpy(listeImagesATelecharger[*nbImagesATelecharger - 1], listeImagesServeur[numFichier - 1]); // On stocke le texte correspondant au numéro du fichier choisi
-          printf("Saisissez le numéro du fichier que vous voulez ajouter (0 pour terminer) : ");
+          if(numFichier > 0 && numFichier <= nbImagesServeur){
+               *nbImagesATelecharger += 1;
+               listeImagesATelecharger = (char **)realloc(listeImagesATelecharger, sizeof(char *) * (*nbImagesATelecharger));
+               listeImagesATelecharger[*nbImagesATelecharger - 1] = malloc(sizeof(char) * 100);                // Allocation mémoire pour la nouvelle chaîne
+               strcpy(listeImagesATelecharger[*nbImagesATelecharger - 1], listeImagesServeur[numFichier - 1]); // On stocke le texte correspondant au numéro du fichier choisi
+          }else{
+               printf("Numéro d'image non répertorié\n");
+          }
+          printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
           numFichier = saisieEntier();
      }
-     printf("fin choix images\n");
      return listeImagesATelecharger;
 }
 
@@ -96,15 +93,19 @@ char **recupereListeImagesAEnvoyer(char **listeImagesClient, int *nbFichier, int
      int numFichier = 0; //Numéro du fichier selectionné
      *nbFichier = 0;     //Nombre de fichiers à envoyer
 
-     printf("Saisissez le numéro du fichier que vous voulez ajouter (0 pour terminer) : ");
+     printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
      numFichier = saisieEntier();
-     while (numFichier > 0 && numFichier <= nbImageClient)
+     while (numFichier != -1)
      {
-          *nbFichier += 1;
-          listeImagesAEnvoyer = (char **)realloc(listeImagesAEnvoyer, sizeof(char *) * (*nbFichier));
-          listeImagesAEnvoyer[*nbFichier - 1] = malloc(sizeof(char) * 100);               //Allocation mémoire pour la nouvelle chaîne
-          strcpy(listeImagesAEnvoyer[*nbFichier - 1], listeImagesClient[numFichier - 1]); //On stocke le texte correspondant au numéro du fichier choisi
-          printf("Saisissez le numéro du fichier que vous voulez ajouter (0 pour terminer) : ");
+          if(numFichier > 0 && numFichier <= nbImageClient){
+               *nbFichier += 1;
+               listeImagesAEnvoyer = (char **)realloc(listeImagesAEnvoyer, sizeof(char *) * (*nbFichier));
+               listeImagesAEnvoyer[*nbFichier - 1] = malloc(sizeof(char) * 100);               //Allocation mémoire pour la nouvelle chaîne
+               strcpy(listeImagesAEnvoyer[*nbFichier - 1], listeImagesClient[numFichier - 1]); //On stocke le texte correspondant au numéro du fichier choisi
+          }else{
+               printf("Numéro d'image non répertorié\n");
+          }
+          printf("Saisissez le numéro du fichier que vous voulez ajouter (-1 pour terminer) : ");
           numFichier = saisieEntier();
      }
 
@@ -135,7 +136,7 @@ void envoiServeur(int socketCommClient)
      int action = 0; //Représente le choix fait par l'utilisateur
      while (action != FIN_ENVOI)
      {
-          //clear();                //Vide le terminal
+          clear();                //Vide le terminal
           printf("*** Liste des fichiers disponibles pour le dépôt ***\n");
           int debut = (page * 4); //Se place sur le premier fichier de la page
           int fin = debut + 4;
@@ -144,8 +145,11 @@ void envoiServeur(int socketCommClient)
                printf("[%d] %s\n", debut + 1, listeImagesClient[debut]);
                debut++;
           }
-          printf("\n(1) Page précédente\n(2) Choisir des fichiers à déposer\n(3) Page suivante\n(0) Retour au menu principal\n");
-          action = saisieEntier(); //Demande l'action suivante
+          do{
+               printf("\n(1) Page précédente\n(2) Choisir des fichiers à déposer\n(3) Page suivante\n(-1) Retour au menu principal\n");
+               action = saisieEntier(); //Demande l'action suivante
+          }while(action != -1 && action != 1 && action != 2 && action != 3);
+          
           switch (action)
           {
           case 1:
@@ -162,7 +166,6 @@ void envoiServeur(int socketCommClient)
                     int code = ENVOI;
                     write(socketCommClient, &code, sizeof(int));
                     envoiImages(socketCommClient, listeImagesAEnvoyer, tailleListeImagesAEnvoyer);
-                    printf("Fin envoieImages\n");
                }
                else
                {
@@ -180,23 +183,21 @@ void envoiServeur(int socketCommClient)
                     page++;
                }
                break;
+          case -1:
           default:
                action = FIN_ENVOI;
                break;
           }
      }
-     printf("free listeImagesClient\n");
      if (listeImagesClient != NULL)
      {
           for (int i = 0; i < tailleListeImagesClient; i++)
           {
-               printf("dedans\n");
                if (listeImagesClient[i] != NULL)
                {
                     free(listeImagesClient[i]);
                }
           }
-          printf("dehors\n");
           free(listeImagesClient);
      }
      //Voir pour mettre message apres telechargement avec appuie touche pour confirmer

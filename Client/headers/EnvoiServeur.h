@@ -1,11 +1,6 @@
 #ifndef ENVOISERVEUR_H
 #define ENVOISERVEUR_H
 /**
- * @brief Vide le terminal pourque l'affichage suivant soit propre
- * 
- */
-void clear();
-/**
  * @brief envoi le nombre de image a télécharger au serveur puis pour chaque images a envoyer,
  * envoi la taille de la chaine suivi de la chaine
  * 
