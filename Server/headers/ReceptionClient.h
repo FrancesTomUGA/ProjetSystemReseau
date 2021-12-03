@@ -1,6 +1,8 @@
 #ifndef RECEPTIONCLIENT_H
 #define RECEPTIONCLIENT_H
 
+
+
 /**
  * @brief 
  * 

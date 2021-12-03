@@ -1,5 +1,8 @@
 #ifndef ADMIS_C
 #define ADMIS_C
+
+
+
 /**
  * @brief 
  * 
@@ -7,6 +10,8 @@
  * @return int 
  */
 int admissible(char* nomImage);
+
+
 /**
  * @brief 
  * 
@@ -14,4 +19,5 @@ int admissible(char* nomImage);
  * @return char** 
  */
 char **recupereListeTypeMime(int *nbType);
+
 #endif
