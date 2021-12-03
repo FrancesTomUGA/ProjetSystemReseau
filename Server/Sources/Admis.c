@@ -58,7 +58,7 @@ int checksumInterdite(char *cheminImage){
      }
 
      char chaine[5];
-     // on lit et vire le P3
+     // on lit et ignore le P3
      fgets(chaine, 5, fichier);
      chaine[0] = '\0';
      int dim[2];
