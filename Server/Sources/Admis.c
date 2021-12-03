@@ -114,7 +114,7 @@ int admissible(char *nomImage){
      int nbType = 0;
      char **listeTypeMime = recupereListeTypeMime(&nbType);
      int typeAdmis = 0;
-     int isPPM = 0;
+     int checksumRefusee = 0;
      char cheminImageTmp[306];
      char cheminImageFinal[306];
      sprintf(cheminImageTmp, "./tmp/%s", nomImage);
@@ -170,7 +170,7 @@ int admissible(char *nomImage){
                     /* Vérification de l'existence de ce type dans le tableau parcouru des types mime admissibles */
                     if (strcmp(type, listeTypeMime[j]) == 0){
                          typeAdmis = 1;
-                         if(strcmp(type, "image/x-portable-pixmap") == 0 && checksumInterdite(cheminImageTmp)){
+                         if(strcmp(type, "image/x-portable-pixmap") == 0 && (checksumRefusee = checksumInterdite(cheminImageTmp))){
                               typeAdmis = 0;
                          }
                          
@@ -183,7 +183,11 @@ int admissible(char *nomImage){
                     rename(cheminImageTmp, cheminImageFinal);
                }else{
                     if (unlink(cheminImageTmp) == 0){
-                         printf("Fichier refusé (type %s non admis)\n", type);
+                         if(checksumRefusee){
+                              printf("Fichier PPM refusé (checksum interdite)\n");
+                         }else{
+                              printf("Fichier refusé (type %s non admis)\n", type);
+                         }
                     }
                }
                exit(0);
