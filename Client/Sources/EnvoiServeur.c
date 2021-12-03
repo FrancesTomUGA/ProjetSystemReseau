@@ -139,6 +139,8 @@ void envoiServeur(int socketCommClient) {
                debut++;
           }
 
+          printf("\nPage %d\n", page+1);
+
           do {
                printf("\n(1) Page précédente\n(2) Choisir des fichiers à déposer\n(3) Page suivante\n(-1) Retour au menu principal\n");
                action = saisieEntier(); //Demande l'action suivante
@@ -158,7 +160,6 @@ void envoiServeur(int socketCommClient) {
                          int code = ENVOI;
                          write(socketCommClient, &code, sizeof(int));
                          envoiImages(socketCommClient, listeImagesAEnvoyer, tailleListeImagesAEnvoyer);
-                         printf("Fin envoieImages\n");
                     }
                     else {
                          printf("Vous n'avez sélectionné aucune image\n");
@@ -169,6 +170,7 @@ void envoiServeur(int socketCommClient) {
                     }
 
                     action = FIN_ENVOI;
+                    printf("\nFin de la procédure d'envoi\n");
                     break;
 
                case 3:

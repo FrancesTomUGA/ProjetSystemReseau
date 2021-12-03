@@ -25,7 +25,6 @@ void envoiImage(int socketTransfert, char *nomImage) {
      char cheminImageLue[306];
      bzero(cheminImageLue, 306);
      sprintf(cheminImageLue, "./FilesClient/%s", nomImage);
-     printf("CheminImageLue : %s\n", cheminImageLue);
      imageLue = open(cheminImageLue, O_RDONLY);
 
      if (imageLue == -1) {
@@ -51,7 +50,7 @@ void envoiImage(int socketTransfert, char *nomImage) {
 
      int sortie;
      while (read(socketTransfert, &sortie, sizeof(int)) == -1);
-     printf("Lecture de l'image et transmission terminées\n");
+     printf("Lecture de l'image %s et envoi au serveur terminés\n", nomImage);
 }
 
 
@@ -95,7 +94,7 @@ void receptionImage(int socketService) {
 
      int fini = 1;
      write(socketService, &fini, sizeof(int));
-     printf("Réception des données terminée\n");
+     printf("Téléchargement des images terminé\n");
 
      if(cheminImageTransfert!=NULL) {
           free(cheminImageTransfert);

@@ -67,6 +67,8 @@ void telechargementServeur(int socketCommClient) {
                debut++;
           }
 
+          printf("\nPage %d\n", page+1);
+
           printf("\n(1) Page précédente\n(2) Choisir des fichiers télécharger\n(3) Page suivante\n(-1) Retour au menu principal\n");
           action = saisieEntier(); // Demande l'action suivante
 
@@ -116,5 +118,4 @@ void telechargementServeur(int socketCommClient) {
           }
           free(listeImagesATelecharger);
      }
-     printf("Vous-avez choisi de récuperer des fichiers\n");
 }

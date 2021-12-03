@@ -91,9 +91,11 @@ int main(int argc, char const *argv[]) {
                default:
                     break;
           }
-          printf("Saisissez un caractère pour continuer\n");
-          saisieEntier();
-          clear();
+          if(action == 1 || action == 2){
+               printf("Saisissez un caractère pour continuer\n");
+               saisieEntier();
+               clear();
+          }
      }
 
      int sortie = SORTIE;
